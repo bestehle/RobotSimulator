@@ -11,6 +11,7 @@
 
 from graphics import *
 
+
 class OccupancyGrid:
 
     # --------

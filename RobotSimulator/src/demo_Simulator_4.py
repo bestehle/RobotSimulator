@@ -1,6 +1,7 @@
 from math import *
-import officeWorld
+
 import World
+import officeWorld
 
 
 # Office world erzeugen:

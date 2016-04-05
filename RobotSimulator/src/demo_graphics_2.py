@@ -1,9 +1,11 @@
 # Bewegung von 100 Partikeln testen.
 # O. Bittel; 29.01.2015
 
-from graphics import *
 import random
 import time
+
+from graphics import *
+
 
 def main():
     win = GraphWin("My Animation", 1200, 1200, autoflush=False)

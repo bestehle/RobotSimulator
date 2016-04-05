@@ -1,7 +1,8 @@
 from math import *
-import obstacleWorld3
+
 import Robot
 import World
+import obstacleWorld3
 
 
 # Roboter in obstacleWorld3 positionieren:

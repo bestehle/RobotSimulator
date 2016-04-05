@@ -21,12 +21,13 @@
 
 
 from math import *
-import numpy as np
-from graphics import *
+import time
+
 from CursorController import *
 from OccupancyGrid import *
+from graphics import *
+import numpy as np
 
-import time
 
 class World:
 

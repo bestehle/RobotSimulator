@@ -1,5 +1,6 @@
 from World import *
 
+
 def buildWorld():
     world = World(20, 20)
     world.addBox(10,10)

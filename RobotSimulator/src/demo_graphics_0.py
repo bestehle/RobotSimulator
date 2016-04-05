@@ -1,8 +1,10 @@
 # Kreis und Line zeichnen
 # O. Bittel; 29.01.2015
 
-from graphics import *
 import random
+
+from graphics import *
+
 
 def main():
     win = GraphWin("My Circle", 500, 500) # Fenstergroesse 500*500 Pixel

@@ -1,5 +1,6 @@
 from World import *
 
+
 def buildWorld():
     world = World(40, 20)
 

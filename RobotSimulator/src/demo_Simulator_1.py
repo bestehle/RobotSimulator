@@ -1,7 +1,9 @@
 from math import *
-import emptyWorld
+
 import Robot
 import World
+import emptyWorld
+
 
 # Roboter in einer Welt positionieren:
 myWorld = emptyWorld.buildWorld()
