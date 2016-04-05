@@ -158,6 +158,25 @@ class Robot:
         for i in range(0, tau):
             self.move([v, omega * sign])
 
+    def driveCircle(self, v, r, direction):
+        self.curveDrive(v, r, math.pi)   
+        self.curveDrive(v, r, math.pi)   
+        
+    def driveRectangle(self, v, a, b):
+        self.straightDrive(v, a)
+        self.curveDrive(v, 0, math.pi / 2)   
+        self.straightDrive(v, b)
+        self.curveDrive(v, 0, math.pi / 2)   
+        self.straightDrive(v, a)
+        self.curveDrive(v, 0, math.pi / 2)   
+        self.straightDrive(v, b)
+        self.curveDrive(v, 0, math.pi / 2)   
+        
+    def driveChangeLane(self, v, r, alfa, length):
+        self.curveDrive(v, r, alfa)
+        self.straightDrive(v, length)
+        self.curveDrive(v, r, -alfa)
+           
 
     # --------
     # sense and returns distance measurements for each sensor beam.

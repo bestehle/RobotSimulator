@@ -1,17 +1,39 @@
 from math import *
 
+from numpy import math
+
 from robotsimulator import Robot
 from robotsimulator import World
 from robotsimulator.worlds import emptyWorld
 
-
 # Roboter in einer Welt positionieren:
 myWorld = emptyWorld.buildWorld()
 myRobot = Robot.Robot()
-myRobot.deactivateMotionNoise()
-myWorld.setRobot(myRobot, 5, 8, pi / 4)
+# myRobot.deactivateMotionNoise()
+myWorld.setRobot(myRobot, 5, 12, 0)
 
-myRobot.straightDrive(1, 10)
+v = 1
+v2 = 1
+myRobot.driveCircle(v, 3, 1)
+
+myRobot.straightDrive(v, 3)
+myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
+myRobot.straightDrive(v, 3)
+myRobot.driveChangeLane(v, 1, -math.pi / 4, 1)
+myRobot.straightDrive(v, 3)
+
+myRobot.curveDrive(v, 1, -math.pi)
+myRobot.straightDrive(v, 3)
+
+myRobot.driveRectangle(v, 5, 2)
+myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
+myRobot.driveRectangle(v, 5, 2)
+myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
+myRobot.driveRectangle(v, 5, 2)
+myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
+
+myRobot.curveDrive(v, 1, -math.pi / 2)
+myRobot.straightDrive(v, 6)
 
 
 # Simulation schliessen:
