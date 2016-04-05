@@ -1,4 +1,4 @@
-from World import *
+from robotsimulator.World import *
 
 
 def buildWorld():

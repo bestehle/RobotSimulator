@@ -1,7 +1,8 @@
 from math import *
-import officeWorld
-import Robot
-import World
+
+from robotsimulator import Robot
+from robotsimulator import World
+from robotsimulator.worlds import officeWorld
 
 
 # Roboter in Office-World positionieren:

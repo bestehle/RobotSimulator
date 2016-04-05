@@ -9,7 +9,7 @@
 # O. Bittel
 # V 2.0; 9.3.2016
 
-from graphics import *
+from robotsimulator.graphics.graphics import *
 
 
 class OccupancyGrid:

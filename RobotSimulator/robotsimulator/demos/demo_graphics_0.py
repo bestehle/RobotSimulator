@@ -3,7 +3,7 @@
 
 import random
 
-from graphics import *
+from robotsimulator.graphics.graphics import *
 
 
 def main():

@@ -1,8 +1,8 @@
 from math import *
 
-import Robot
-import World
-import emptyWorld
+from robotsimulator import Robot
+from robotsimulator import World
+from robotsimulator.worlds import emptyWorld
 
 
 # Roboter in einer Welt positionieren:

@@ -1,8 +1,8 @@
 from math import *
 
-import Robot
-import World
-import obstacleWorld3
+from robotsimulator import Robot
+from robotsimulator import World
+from robotsimulator.worlds import obstacleWorld3
 
 
 # Roboter in obstacleWorld3 positionieren:

@@ -1,7 +1,7 @@
 from math import *
 
-import World
-import officeWorld
+from robotsimulator import World
+from robotsimulator.worlds import officeWorld
 
 
 # Office world erzeugen:

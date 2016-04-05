@@ -23,10 +23,10 @@
 from math import *
 import time
 
-from CursorController import *
-from OccupancyGrid import *
-from graphics import *
 import numpy as np
+from robotsimulator.CursorController import *
+from robotsimulator.OccupancyGrid import *
+from robotsimulator.graphics.graphics import *
 
 
 class World:
