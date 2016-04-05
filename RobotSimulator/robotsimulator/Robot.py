@@ -22,22 +22,29 @@ class Robot:
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
-        self._k_theta = (2.0 * 2.0/360.0) * (pi/180.0)  # turning rate noise parameter = 2deg*2deg/360deg * (1rad/1deg)
-        self._k_drift = (2.0 * 2.0)/1.0 * (pi/180.0) ** 2  # drift noise parameter = 2deg*2deg / 1m
-        self._maxSpeed = 1 # maximum speed
-        self._maxOmega = pi # maximum rotational speed
+        self._k_theta = (2.0 * 2.0 / 360.0) * (pi / 180.0)  # turning rate noise parameter = 2deg*2deg/360deg * (1rad/1deg)
+        self._k_drift = (2.0 * 2.0) / 1.0 * (pi / 180.0) ** 2  # drift noise parameter = 2deg*2deg / 1m
+        self._motionNoise = True
+        self._maxSpeed = 2  # maximum speed
+        self._maxOmega = pi  # maximum rotational speed
 
         # Sensor parameter (x-axis is in forward direction):
         self._numberOfSensors = 36
         dTheta = 360.0 / self._numberOfSensors
-        self._sensorDirections = [(-90.0 + dTheta * i) * (pi/180.0) for i in range(self._numberOfSensors)]
+        self._sensorDirections = [(-90.0 + dTheta * i) * (pi / 180.0) for i in range(self._numberOfSensors)]
         self._maxSenseValue = 5.0  # Maximum sensor value for each sensor beam
         self._sensorNoise = 0.01  # standard deviation of distance measurement for 1m
 
         # Odometry Pose
         self._odoX = 0.0
         self._odoY = 0.0
-        self._odoTheta = pi/2
+        self._odoTheta = pi / 2
+        
+    def activateMotionNoise(self):
+        self._motionNoise = True
+
+    def deactivateMotionNoise(self):
+        self._motionNoise = False
 
     def getTimeStep(self):
         return self._T
@@ -103,16 +110,19 @@ class Robot:
         if v < -self._maxSpeed:
             v = -self._maxSpeed
 
-        print ("motion ", v, omega*180/pi)
+        print ("motion ", v, omega * 180 / pi)
 
         # Odometry pose update (based on the motion command):
         d = v * self._T
         dTheta = omega * self._T
-        self._odoX += d * cos(self._odoTheta+0.5*dTheta)
-        self._odoY += d * sin(self._odoTheta+0.5*dTheta)
+        self._odoX += d * cos(self._odoTheta + 0.5 * dTheta)
+        self._odoY += d * sin(self._odoTheta + 0.5 * dTheta)
         self._odoTheta = (self._odoTheta + dTheta) % (2 * pi)
 
         # Add noise to v:
+        if not self._motionNoise:
+            return self._world.moveRobot(d, dTheta, self._T)    
+        
         sigma_v_2 = (self._k_d / self._T) * abs(v)
         v_noisy = v + random.gauss(0.0, sqrt(sigma_v_2))
 
@@ -127,6 +137,10 @@ class Robot:
         dTheta_noisy = omega_noisy * self._T
         return self._world.moveRobot(d_noisy, dTheta_noisy, self._T)
 
+    def straightDrive(self, v, l):
+        t = int((l / v) / self._T)
+        for i in range(0, t):
+            self.move([v, 0])
 
     # --------
     # sense and returns distance measurements for each sensor beam.
@@ -138,7 +152,7 @@ class Robot:
         for d in sensorDist:
             if d is not None:
                 # print "d: ", d
-                sigma2 = self._sensorNoise**2 * d
+                sigma2 = self._sensorNoise ** 2 * d
                 d += random.gauss(0.0, sqrt(sigma2))
             sensorDistNoisy.append(d)
         return sensorDistNoisy
