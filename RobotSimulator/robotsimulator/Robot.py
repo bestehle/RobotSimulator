@@ -9,6 +9,7 @@
 
 from math import *
 import random
+from numpy import math
 
 
 class Robot:
@@ -137,10 +138,26 @@ class Robot:
         dTheta_noisy = omega_noisy * self._T
         return self._world.moveRobot(d_noisy, dTheta_noisy, self._T)
 
+    # dirves length l with speed v 
     def straightDrive(self, v, l):
+        if v == 0:
+            return
         t = int((l / v) / self._T)
         for i in range(0, t):
             self.move([v, 0])
+            
+    def curveDrive(self, v, r, delta_theta):
+        if v == 0 and r != 0:
+            return
+        if r == 0:
+            omega = self._maxOmega
+        else:
+            omega = (v / r)
+        sign = -1 if delta_theta < 0 else 1
+        tau = int((((delta_theta * sign) % (math.pi * 2)) / omega) / self._T)
+        for i in range(0, tau):
+            self.move([v, omega * sign])
+
 
     # --------
     # sense and returns distance measurements for each sensor beam.
