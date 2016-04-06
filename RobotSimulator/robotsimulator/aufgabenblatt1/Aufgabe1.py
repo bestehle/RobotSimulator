@@ -3,11 +3,11 @@ from math import *
 from numpy import math
 
 from robotsimulator import Robot
-from robotsimulator import World
-from robotsimulator.worlds import emptyWorld
+from robotsimulator.World import World
+
 
 # Roboter in einer Welt positionieren:
-myWorld = emptyWorld.buildWorld()
+myWorld = World(20, 20)
 myRobot = Robot.Robot()
 # myRobot.deactivateMotionNoise()
 myWorld.setRobot(myRobot, 5, 12, 0)
