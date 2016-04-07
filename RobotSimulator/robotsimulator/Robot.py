@@ -146,6 +146,37 @@ class Robot:
         t = int((l / v) / self._T)
         for i in range(0, t):
             self.move([v, 0])
+
+    # dirves length l with speed v 
+    def straightDriveTruePose(self, v, l):
+        if v == 0:
+            return
+        truePoseBefore = self.getTrueRobotPose()
+        t = int((l / v) / self._T)
+        trueL = 0
+        while trueL < (l - v * self._T):
+            self.move([v, 0])
+            truePoseAfter = self.getTrueRobotPose()
+            trueL = sqrt((truePoseAfter[0] - truePoseBefore[0]) ** 2 + (truePoseAfter[1] - truePoseBefore[1]) ** 2)
+        v = (l - trueL) / self._T
+        self.move([v, 0])
+            
+#     # dirves length l with speed v 
+#     def straightDriveTruePose(self, v, l):
+#         if v == 0:
+#             return
+#         t = int((l / v) / self._T)
+#         for i in range(0, t):
+#             odoPoseBefore = self.getOdoPose()
+#             truePoseBefore = self.getTrueRobotPose()
+#             self.move([v, 0])
+#             odoPoseAfter = self.getOdoPose()
+#             truePoseAfter = self.getTrueRobotPose()
+#             deltaX = ((odoPoseAfter[0] - odoPoseBefore[0]) - (truePoseAfter[0] - truePoseBefore[0])) 
+#             deltaY = ((odoPoseAfter[1] - odoPoseBefore[1]) - (truePoseAfter[1] - truePoseBefore[1])) 
+#             deltaS = sqrt(deltaX ** 2 + deltaY ** 2)
+#             vNew = 
+            
             
     def curveDrive(self, v, r, delta_theta):
         if v == 0 and r != 0:
