@@ -160,32 +160,20 @@ class Robot:
         v = (l - trueL) / self._T
         self.move([v, 0])
             
-#     # dirves length l with speed v 
-#     def straightDriveTruePose(self, v, l):
-#         if v == 0:
-#             return
-#         t = int((l / v) / self._T)
-#         for i in range(0, t):
-#             odoPoseBefore = self.getOdoPose()
-#             truePoseBefore = self.getTrueRobotPose()
-#             self.move([v, 0])
-#             odoPoseAfter = self.getOdoPose()
-#             truePoseAfter = self.getTrueRobotPose()
-#             deltaX = ((odoPoseAfter[0] - odoPoseBefore[0]) - (truePoseAfter[0] - truePoseBefore[0])) 
-#             deltaY = ((odoPoseAfter[1] - odoPoseBefore[1]) - (truePoseAfter[1] - truePoseBefore[1])) 
-#             deltaS = sqrt(deltaX ** 2 + deltaY ** 2)
-#             vNew = 
-            
-            
     def curveDrive(self, v, r, delta_theta):
         if v == 0 and r != 0:
             return
         if r == 0:
-            omega = self._maxOmega
+            theta = self.getOdoPose()[2] + delta_theta
+            diff = self.diffDegree(theta, self.getOdoPose()[2])
+            while abs(diff) > 0.01 :
+                self.move([0, diff])
+                diff = self.diffDegree(theta, self.getOdoPose()[2])
+            return
         else:
             omega = (v / r)
         sign = -1 if delta_theta < 0 else 1
-        tau = int((((delta_theta * sign) % (math.pi * 2)) / omega) / self._T)
+        tau = round((((delta_theta * sign) % (math.pi * 2)) / omega) / self._T)
         for i in range(0, tau):
             self.move([v, omega * sign])
             
@@ -251,6 +239,49 @@ class Robot:
             if not self.move([v, (-kp * e) - (kd * de)]) :
                 return
 
+    def goto(self, v, p, tol):
+        # get the actual position of robot
+        [x, y, theta] = self.getTrueRobotPose();
+        # calculate the distance between robot and target point
+        distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
+        delta_theta = self.diffDegree(atan2(p.getY() - y, p.getX() - x), theta)
+        # point not reached?
+        if(distance > tol):
+            # drive missing distance
+            self.curveDrive(0.5, 0, delta_theta)
+            self.straightDrive(v, distance);
+            # call goto again.
+            self.goto(v, p, tol)
+
+    def goto2(self, v, p, tol):
+        # get the actual position of robot
+        [x, y, theta] = self.getTrueRobotPose();
+        # calculate the distance between robot and target point
+        distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
+        # point not reached?
+        while (distance > tol):
+            [x, y, theta] = self.getTrueRobotPose();
+            distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
+            delta_theta = self.diffDegree(atan2(p.getY() - y, p.getX() - x), theta)
+            # drive missing distance
+            self.move([v, delta_theta])
+        
+    def followPolyline1(self, v, poly):
+        tol = 1
+        for p in poly:
+            self.goto(v, p, tol);
+        
+    def followPolyline2(self, v, poly):
+        tol = 1
+        for p in poly:
+            self.goto2(v, p, tol);
+            
+    def followPolyline3(self, v, poly):
+        v = 1
+        kp = 0.2
+        for i in range(0, len(poly) - 1):
+            self.followLinePD(v, kp, poly[i], poly[i + 1])
+
     # --------
     # sense and returns distance measurements for each sensor beam.
     # If a sensor beams senses no obstacle distance value is set to None.
@@ -289,6 +320,6 @@ class Robot:
         return (a + b) % (2 * math.pi)
     
     def diffDegree(self, a, b):
-        return (b - a + math.pi) % (2 * math.pi) - math.pi
+        return ((a - b + math.pi) % (2 * math.pi)) - math.pi
 
 
