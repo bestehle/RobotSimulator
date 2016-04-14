@@ -7,36 +7,36 @@ from robotsimulator.World import World
 
 
 # Roboter in einer Welt positionieren:
-myWorld = World(20, 20)
+myWorld = World(40, 20)
 myRobot = Robot.Robot()
 # myRobot.deactivateMotionNoise()
-myWorld.setRobot(myRobot, 1, 1, math.pi / 4)
+myWorld.setRobot(myRobot, 8, 5, 0)
 
 v = 1
 v2 = 1
 
-# myRobot.straightDrive(v, 15)
-myRobot.straightDriveTruePose(v, 15)
+myRobot.straightDrive(v, 1.5)
+myRobot.curveDrive(v, 2, math.pi / 2)
+myRobot.straightDrive(v, 3)
+myRobot.curveDrive(v, 2, math.pi / 2)
+myRobot.straightDrive(v, 3)
+myRobot.curveDrive(v, 2, math.pi / 2)
+myRobot.straightDrive(v, 3)
+myRobot.curveDrive(v, 2, math.pi / 2)
+myRobot.straightDrive(v, 1.5)
 
+myWorld.setRobot(myRobot, 20, 5, 0)
 
+myRobot.straightDriveTruePose(v, 1.5)
+myRobot.curveDriveTruePose(v, 2, math.pi / 2)
+myRobot.straightDriveTruePose(v, 3)
+myRobot.curveDriveTruePose(v, 2, math.pi / 2)
+myRobot.straightDriveTruePose(v, 3)
+myRobot.curveDriveTruePose(v, 2, math.pi / 2)
+myRobot.straightDriveTruePose(v, 3)
+myRobot.curveDriveTruePose(v, 2, math.pi / 2)
+myRobot.straightDriveTruePose(v, 1.5)
 
-# myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
-# myRobot.straightDrive(v, 3)
-# myRobot.driveChangeLane(v, 1, -math.pi / 4, 1)
-# myRobot.straightDrive(v, 3)
-# 
-# myRobot.curveDrive(v, 1, -math.pi)
-# myRobot.straightDrive(v, 3)
-# 
-# myRobot.driveRectangle(v, 5, 2)
-# myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
-# myRobot.driveRectangle(v, 5, 2)
-# myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
-# myRobot.driveRectangle(v, 5, 2)
-# myRobot.driveChangeLane(v, 1, math.pi / 4, 1)
-# 
-# myRobot.curveDrive(v, 1, -math.pi / 2)
-# myRobot.straightDrive(v, 6)
 
 
 # Simulation schliessen:

@@ -112,7 +112,7 @@ class Robot:
         if v < -self._maxSpeed:
             v = -self._maxSpeed
 
-        print ("motion ", v, omega * 180 / pi)
+#         print ("motion ", v, omega * 180 / pi)
 
         # Odometry pose update (based on the motion command):
         d = v * self._T
@@ -152,7 +152,6 @@ class Robot:
         if v == 0:
             return
         truePoseBefore = self.getTrueRobotPose()
-        t = int((l / v) / self._T)
         trueL = 0
         while trueL < (l - v * self._T):
             self.move([v, 0])
@@ -189,6 +188,20 @@ class Robot:
         tau = int((((delta_theta * sign) % (math.pi * 2)) / omega) / self._T)
         for i in range(0, tau):
             self.move([v, omega * sign])
+            
+            
+    def curveDriveTruePose(self, v, r, delta_theta):
+        if v == 0 and r != 0:
+            return
+        if r == 0:
+            omega = self._maxOmega
+        else:
+            omega = (v / r)
+        sign = -1 if delta_theta < 0 else 1
+        endTheta = self.addDegree(self.getTrueRobotPose()[2], delta_theta)
+        while abs(self.diffDegree(self.getTrueRobotPose()[2], endTheta)) >= (omega * self._T) :
+            self.move([v, omega * sign])
+        self.move([v, self.diffDegree(self.getTrueRobotPose()[2], endTheta) / self._T * sign])
 
     def driveCircle(self, v, r, direction):
         self.curveDrive(v, r, math.pi)   
@@ -223,11 +236,20 @@ class Robot:
 #         return abs((p2.x - p1.x) * (p1.y - self.getTrueRobotPose()[1]) - (p1.x - self.getTrueRobotPose()[0]) * (p2.y - p1.y))
     
 
-    def followLineP(self, v, kp, p1, p2):
+    def followLineP(self, v, kp, p1, p2, kd=1):
         e = self.distance(p1, p2)
         while e != 0:
             e = self.distance(p1, p2)
-            self.move([v, -kp * e])
+            if not self.move([v, -kp * e]):
+                return
+
+    def followLinePD(self, v, kp, p1, p2, kd=1):
+        e = self.distance(p1, p2)
+        while e != 0:
+            de = (self.distance(p1, p2) - e) / self._T
+            e = self.distance(p1, p2)
+            if not self.move([v, (-kp * e) - (kd * de)]) :
+                return
 
     # --------
     # sense and returns distance measurements for each sensor beam.
@@ -262,6 +284,11 @@ class Robot:
     def setWorld(self, world):
         self._world = world
 
-
+        
+    def addDegree(self, a, b):
+        return (a + b) % (2 * math.pi)
+    
+    def diffDegree(self, a, b):
+        return (b - a + math.pi) % (2 * math.pi) - math.pi
 
 
