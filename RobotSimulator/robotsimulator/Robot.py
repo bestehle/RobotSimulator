@@ -248,8 +248,8 @@ class Robot:
         # point not reached?
         if(distance > tol):
             # drive missing distance
-            self.curveDrive(0.5, 0, delta_theta)
-            self.straightDrive(v, distance);
+            self.curveDriveTruePose(0.5, 0, delta_theta)
+            self.straightDriveTruePose(v, distance);
             # call goto again.
             self.goto(v, p, tol)
 
