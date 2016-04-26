@@ -191,26 +191,6 @@ class Robot:
             self.move([v, omega * sign])
         self.move([v, self.diffDegree(self.getTrueRobotPose()[2], endTheta) / self._T * sign])
 
-    def driveCircle(self, v, r, direction):
-        self.curveDrive(v, r, math.pi)   
-        self.curveDrive(v, r, math.pi)   
-        
-    def driveRectangle(self, v, a, b):
-        self.straightDrive(v, a)
-        self.curveDrive(v, 0, math.pi / 2)   
-        self.straightDrive(v, b)
-        self.curveDrive(v, 0, math.pi / 2)   
-        self.straightDrive(v, a)
-        self.curveDrive(v, 0, math.pi / 2)   
-        self.straightDrive(v, b)
-        self.curveDrive(v, 0, math.pi / 2)   
-        
-    def driveChangeLane(self, v, r, alfa, length):
-        self.curveDrive(v, r, alfa)
-        self.straightDrive(v, length)
-        self.curveDrive(v, r, -alfa)
-           
-
     def pdis(self, a, b, c):
         t = b[0] - a[0], b[1] - a[1]  # Vector ab
         dd = sqrt(t[0] ** 2 + t[1] ** 2)  # Length of ab
@@ -239,7 +219,7 @@ class Robot:
             if not self.move([v, (-kp * e) - (kd * de)]) :
                 return
 
-    def goto(self, v, p, tol):
+    def gotoTurnFirst(self, v, p, tol):
         # get the actual position of robot
         [x, y, theta] = self.getTrueRobotPose();
         # calculate the distance between robot and target point
@@ -253,7 +233,7 @@ class Robot:
             # call goto again.
             self.goto(v, p, tol)
 
-    def goto2(self, v, p, tol):
+    def goto(self, v, p, tol):
         # get the actual position of robot
         [x, y, theta] = self.getTrueRobotPose();
         # calculate the distance between robot and target point
@@ -266,21 +246,15 @@ class Robot:
             # drive missing distance
             self.move([v, delta_theta])
         
-    def followPolyline1(self, v, poly):
+    def followPolylineTurnFirst(self, v, poly):
+        tol = 1
+        for p in poly:
+            self.gotoTurnFirst(v, p, tol);
+        
+    def followPolyline(self, v, poly):
         tol = 1
         for p in poly:
             self.goto(v, p, tol);
-        
-    def followPolyline2(self, v, poly):
-        tol = 1
-        for p in poly:
-            self.goto2(v, p, tol);
-            
-    def followPolyline3(self, v, poly):
-        v = 1
-        kp = 0.2
-        for i in range(0, len(poly) - 1):
-            self.followLinePD(v, kp, poly[i], poly[i + 1])
 
     # --------
     # sense and returns distance measurements for each sensor beam.

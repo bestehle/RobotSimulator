@@ -20,7 +20,7 @@ p = Point(5, 5)
 tol = 0.2
 
 # myRobot.goto(v, p, tol)
-myRobot.goto2(v, p, tol)
+myRobot.goto(v, p, tol)
 
 # Simulation schliessen:
 myWorld.close()
