@@ -7,9 +7,12 @@
 # V 2.0; 9.3.2016
 
 
+from _random import Random
 from math import *
 import random
-from numpy import math
+
+from numpy import math, sign
+
 from robotsimulator.graphics import graphics
 
 
@@ -120,7 +123,7 @@ class Robot:
         self._odoX += d * cos(self._odoTheta + 0.5 * dTheta)
         self._odoY += d * sin(self._odoTheta + 0.5 * dTheta)
         self._odoTheta = (self._odoTheta + dTheta) % (2 * pi)
-
+        
         # Add noise to v:
         if not self._motionNoise:
             return self._world.moveRobot(d, dTheta, self._T)    
@@ -255,6 +258,35 @@ class Robot:
         tol = 1
         for p in poly:
             self.goto(v, p, tol);
+            
+            
+    def braitenberg(self, v, sensorsToUse=3, distance=5):
+        x = 0
+        while True:
+            x = x + 1
+            sensors = self.sense()
+            right = 0
+            left = 0
+            for i in range(1, sensorsToUse + 1): 
+                if sensors[sensorsToUse + 2 + i] != None and sensors[sensorsToUse + 2 + i] <= distance:
+                    right += i * (5 - sensors[sensorsToUse + 2 + i])
+                if sensors[10 + sensorsToUse - i] != None and sensors[10 + sensorsToUse - i] <= distance:
+                    left += i * (5 - sensors[10 + sensorsToUse - i])
+            # turn right when object is in front (dead end)
+            if sensors[9] != None and sensors[9] <= distance:
+                left += (5 - sensors[9]) ** 2
+            angle = (right - left) / 2
+            math.copysign(max(abs(angle), math.pi), angle)
+            print(left, right, angle)
+            if angle != 0:
+                self.move([v, angle])
+            else:
+                # random direction changes if way is free
+                if x % 30 == 0:
+                    for j in range(1, 4):
+                        self.move([v, (random.random() - 0.5) * 2 * math.pi])
+                else:
+                    self.move([v, angle])
 
     # --------
     # sense and returns distance measurements for each sensor beam.
