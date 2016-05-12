@@ -259,34 +259,60 @@ class Robot:
         for p in poly:
             self.goto(v, p, tol);
             
-            
+
     def braitenberg(self, v, sensorsToUse=3, distance=5):
         x = 0
+        scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
             x = x + 1
             sensors = self.sense()
-            right = 0
-            left = 0
-            for i in range(1, sensorsToUse + 1): 
-                if sensors[sensorsToUse + 2 + i] != None and sensors[sensorsToUse + 2 + i] <= distance:
-                    right += i * (5 - sensors[sensorsToUse + 2 + i])
-                if sensors[10 + sensorsToUse - i] != None and sensors[10 + sensorsToUse - i] <= distance:
-                    left += i * (5 - sensors[10 + sensorsToUse - i])
-            # turn right when object is in front (dead end)
-            if sensors[9] != None and sensors[9] <= distance:
-                left += (5 - sensors[9]) ** 2
-            angle = (right - left) / 2
-            math.copysign(max(abs(angle), math.pi), angle)
-            print(left, right, angle)
-            if angle != 0:
-                self.move([v, angle])
+            
+            left, right, front = self.getSensorData(sensorsToUse, distance, sensors)  
+            
+            if self.isInDeadEnd(distance, scale, left, right, front):
+                self.move([v, -self._maxOmega])
+                continue
+            
+            if right > left:
+                angle = right + front
             else:
-                # random direction changes if way is free
-                if x % 30 == 0:
-                    for j in range(1, 4):
-                        self.move([v, (random.random() - 0.5) * 2 * math.pi])
-                else:
-                    self.move([v, angle])
+                angle = -(left + front)
+            scaledAngle = angle * scale
+            
+            print(left, right, front, scaledAngle)
+            
+            if angle != 0:
+                self.move([v, scaledAngle])
+            else:
+                #  random direction changes if way is free
+                self.moveRandom(v, x, scaledAngle)
+
+    def getSensorData(self, sensorsToUse, distance, sensors):
+        right = 0
+        left = 0
+        front = 0
+        for i in range(1, sensorsToUse + 1):
+            if sensors[sensorsToUse + 2 + i] != None and sensors[sensorsToUse + 2 + i] <= distance:
+                right += i * (5 - sensors[sensorsToUse + 2 + i])
+            if sensors[10 + sensorsToUse - i] != None and sensors[10 + sensorsToUse - i] <= distance:
+                left += i * (5 - sensors[10 + sensorsToUse - i])
+        
+        if sensors[9] != None and sensors[9] <= distance:
+            front = 5 - sensors[9]
+        return left, right, front
+
+
+    def isInDeadEnd(self, distance, scale, left, right, front):
+        return (left + right + front) * scale / 2 > 2 and front > distance
+
+
+    def moveRandom(self, v, x, scaledAngle):
+        if x % 30 == 0:
+            for j in range(1, 4):
+                self.move([v, (random.random() - 0.5) * 2 * math.pi])
+        else:
+            self.move([v, scaledAngle])
+
 
     # --------
     # sense and returns distance measurements for each sensor beam.
