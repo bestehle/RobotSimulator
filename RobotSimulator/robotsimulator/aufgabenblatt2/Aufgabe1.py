@@ -21,12 +21,12 @@ myWorld.addLine(10, 17, 13, 14)
 myWorld.addLine(12, 8, 8, 12)
 myWorld.addLine(8, 8, 12, 12)
 
-myWorld.setRobot(myRobot, 8, 10, math.pi)
+myWorld.setRobot(myRobot, 6, 10, 0 * math.pi)
 # myRobot.deactivateMotionNoise()
 
 v = 0.5
 v2 = 1
-myRobot.braitenberg(v2, 3, 3)
+myRobot.braitenberg(v2, 2, 3)
 
 
 
