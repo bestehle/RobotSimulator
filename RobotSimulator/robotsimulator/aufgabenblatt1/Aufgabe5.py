@@ -19,9 +19,7 @@ poly = [Point(2, 10), Point(20, 10), Point(20, 5), Point(25, 5)]
 for x in poly :
     myWorld.addBox(x.getX(), x.getY())
 
-# myRobot.followPolyline1(v, poly)
-# myRobot.followPolyline2(v, poly)
-# myRobot.followPolyline3(v, poly)
+myRobot.followPolyline(v, poly)
 
 
 

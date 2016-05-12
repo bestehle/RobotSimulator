@@ -237,37 +237,49 @@ class Robot:
             self.goto(v, p, tol)
 
     def goto(self, v, p, tol):
-        # get the actual position of robot
-        [x, y, theta] = self.getTrueRobotPose();
-        # calculate the distance between robot and target point
-        distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
-        # point not reached?
-        while (distance > tol):
+        while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
             delta_theta = self.diffDegree(atan2(p.getY() - y, p.getX() - x), theta)
-            # drive missing distance
+            if (distance < tol):
+                return True
+            self.move([v, delta_theta])
+            
+            
+    def gotoWithObstacle(self, v, p, tol, sensorsToUse):
+        while True:
+            [x, y, theta] = self.getTrueRobotPose();
+            distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
+            delta_theta = self.diffDegree(atan2(p.getY() - y, p.getX() - x), theta)
+            if (distance < tol):
+                return True
+            if self.obstacleInWay(sensorsToUse, distance):
+                return False
             self.move([v, delta_theta])
         
-    def followPolylineTurnFirst(self, v, poly):
-        tol = 1
+    def followPolylineTurnFirst(self, v, poly, tol=1):
         for p in poly:
             self.gotoTurnFirst(v, p, tol);
         
-    def followPolyline(self, v, poly):
-        tol = 1
+    def followPolyline(self, v, poly, tol=1):
+        for p in poly:
+            self.goto(v, p, tol);     
+               
+    def followPolylineBraitenberg(self, v, poly, sensorsToUse=3, distance=5, tol=1):
         for p in poly:
             self.goto(v, p, tol);
             
+            
+    def obstacleInWay(self, sensorsToUse, distance):
+        left, right, front = self.getSensorData(sensorsToUse, distance)
+        return left == 0 and right == 0 and front == 0
 
     def braitenberg(self, v, sensorsToUse=3, distance=5):
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
             x = x + 1
-            sensors = self.sense()
-            
-            left, right, front = self.getSensorData(sensorsToUse, distance, sensors)  
+            left, right, front = self.getSensorData(sensorsToUse, distance)  
             
             if self.isInDeadEnd(distance, scale, left, right, front):
                 self.move([v, -self._maxOmega])
@@ -284,10 +296,10 @@ class Robot:
             if angle != 0:
                 self.move([v, scaledAngle])
             else:
-                #  random direction changes if way is free
                 self.moveRandom(v, x, scaledAngle)
 
     def getSensorData(self, sensorsToUse, distance, sensors):
+        sensors = self.sense()
         right = 0
         left = 0
         front = 0
