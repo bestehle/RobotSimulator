@@ -299,7 +299,7 @@ class Robot:
             print(left, right, front, scaledAngle)
             
             if angle != 0:
-                self.move([v, scaledAngle])
+                self.move([v * (1 - abs(scaledAngle) / math.pi), scaledAngle])
             else:
                 return
 
