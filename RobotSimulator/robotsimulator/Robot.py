@@ -24,6 +24,7 @@ class Robot:
         self._size = 0.4  # robot diameter
         self._T = 0.1  # time step
         self._world = None  # robot's world; is set by setWorld()
+        self.FRONT = 10
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -332,15 +333,15 @@ class Robot:
         left = 0
         front = 0
         for i in range(1, sensorsToUse + 1):
-            sensorRight = 8 - sensorsToUse + i
+            sensorRight = self.FRONT - 1 - sensorsToUse + i
             if sensors[sensorRight] != None and sensors[sensorRight] <= distance:
                 right += i * (5 - sensors[sensorRight])
-            sensorLeft = 10 + sensorsToUse - i
+            sensorLeft = self.FRONT + 1 + sensorsToUse - i
             if sensors[sensorLeft] != None and sensors[sensorLeft] <= distance:
                 left += i * (5 - sensors[sensorLeft])
         
-        if sensors[9] != None and sensors[9] <= distance:
-            front = 5 - sensors[9]
+        if sensors[self.FRONT] != None and sensors[self.FRONT] <= distance:
+            front = 5 - sensors[self.FRONT]
         return left, right, front
 
 
@@ -429,11 +430,11 @@ class Robot:
             if state == 0 and sensor[SENSE_FRONT] != None:
                 # evade the obstacle left
                 if (sensor[SENSE_LEFT] == None):
-                    self.changeOrientation(pi/4)
+                    self.changeOrientation(pi / 4)
 
                 # evade the obstacle right      
                 elif sensor[SENSE_RIGHT] == None:
-                    self.changeOrientation(-pi/4)
+                    self.changeOrientation(-pi / 4)
             
             # drive the line
             self.straightDrive(v, self._T)

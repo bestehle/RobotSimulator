@@ -26,7 +26,7 @@ myWorld.setRobot(myRobot, 6, 10, 0 * math.pi)
 
 v = 0.5
 v2 = 1
-myRobot.braitenberg(v2, 6, 2)
+myRobot.braitenberg(v2, 6, 3)
 
 
 
