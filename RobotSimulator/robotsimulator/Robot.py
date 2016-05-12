@@ -29,7 +29,7 @@ class Robot:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
         self._k_theta = (2.0 * 2.0 / 360.0) * (pi / 180.0)  # turning rate noise parameter = 2deg*2deg/360deg * (1rad/1deg)
         self._k_drift = (2.0 * 2.0) / 1.0 * (pi / 180.0) ** 2  # drift noise parameter = 2deg*2deg / 1m
-        self._motionNoise = True
+        self._motionNoise = False
         self._maxSpeed = 2  # maximum speed
         self._maxOmega = pi  # maximum rotational speed
 
@@ -328,4 +328,51 @@ class Robot:
     def diffDegree(self, a, b):
         return ((a - b + math.pi) % (2 * math.pi)) - math.pi
 
+    # --------
+    # change the orientation of the robot
+    #     
+    def changeOrientation(self, delta_theta):
+        [_, _, theta_old] = self.getTrueRobotPose()
+        theta_new = theta_old + delta_theta
+        self._world.moveRobot(0, delta_theta, self._T)
+        self._odoTheta = theta_new
 
+    # --------
+    # Follow polygon [[x,y],[x,y],..] and avoid a collision
+    #     
+    def followPolylineAvoidCollision(self, v, poly):
+        SENSE_FRONT = 10
+        SENSE_LEFT = 11
+        SENSE_RIGHT = 9
+        
+        i = 0;
+        state = 0;
+ 
+        size = len(poly)
+        while True:
+            # robot has reached the finish
+            if i == size:
+                break;
+
+            # get sensor data
+            sensor = self.sense()
+            
+            # check if there is an obstacle in front    
+            if state == 0 and sensor[SENSE_FRONT] != None:
+                # evade the obstacle left
+                if (sensor[SENSE_LEFT] == None):
+                    self.changeOrientation(pi/4)
+
+                # evade the obstacle right      
+                elif sensor[SENSE_RIGHT] == None:
+                    self.changeOrientation(-pi/4)
+            
+            # drive the line
+            self.straightDrive(v, self._T)
+
+            # check if the robot reached the target point
+            [x, y, _] = self.getTrueRobotPose()
+            distance = sqrt((x - poly[i][0]) ** 2 + (y - poly[i][1]) ** 2)
+            # point reached with tolerance
+            if(distance < 0.2):
+                i += 1;
