@@ -246,14 +246,14 @@ class Robot:
             self.move([v, delta_theta])
             
             
-    def gotoWithObstacle(self, v, p, tol, sensorsToUse):
+    def gotoWithObstacle(self, v, p, tol, sensorsToUse, distanceTol):
         while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
             delta_theta = self.diffDegree(atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):
                 return True
-            if self.obstacleInWay(sensorsToUse, distance):
+            if self.obstacleInWay(sensorsToUse, distanceTol):
                 return False
             self.move([v, delta_theta])
         
@@ -265,14 +265,42 @@ class Robot:
         for p in poly:
             self.goto(v, p, tol);     
                
-    def followPolylineBraitenberg(self, v, poly, sensorsToUse=3, distance=5, tol=1):
+    def followPolylineWithObstacle(self, v, poly, sensorsToUse=3, distance=5, tol=1):
         for p in poly:
-            self.goto(v, p, tol);
+            while True:
+                if not self.gotoWithObstacle(v, p, tol, sensorsToUse, distance):
+                    self.avoidObstacle(v, sensorsToUse, distance)
+                else:
+                    break
             
             
     def obstacleInWay(self, sensorsToUse, distance):
         left, right, front = self.getSensorData(sensorsToUse, distance)
-        return left == 0 and right == 0 and front == 0
+        return left != 0 or right != 0 or front != 0
+    
+    def avoidObstacle(self, v, sensorsToUse=3, distance=5):
+        x = 0
+        scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
+        while True:
+            x = x + 1
+            left, right, front = self.getSensorData(sensorsToUse, distance)  
+            
+            if self.isInDeadEnd(distance, scale, left, right, front):
+                self.move([v, -self._maxOmega])
+                continue
+            
+            if right > left:
+                angle = right + front
+            else:
+                angle = -(left + front)
+            scaledAngle = angle * scale
+            
+            print(left, right, front, scaledAngle)
+            
+            if angle != 0:
+                self.move([v, scaledAngle])
+            else:
+                return
 
     def braitenberg(self, v, sensorsToUse=3, distance=5):
         x = 0
@@ -298,16 +326,18 @@ class Robot:
             else:
                 self.moveRandom(v, x, scaledAngle)
 
-    def getSensorData(self, sensorsToUse, distance, sensors):
+    def getSensorData(self, sensorsToUse, distance):
         sensors = self.sense()
         right = 0
         left = 0
         front = 0
         for i in range(1, sensorsToUse + 1):
-            if sensors[sensorsToUse + 2 + i] != None and sensors[sensorsToUse + 2 + i] <= distance:
-                right += i * (5 - sensors[sensorsToUse + 2 + i])
-            if sensors[10 + sensorsToUse - i] != None and sensors[10 + sensorsToUse - i] <= distance:
-                left += i * (5 - sensors[10 + sensorsToUse - i])
+            sensorRight = 8 - sensorsToUse + i
+            if sensors[sensorRight] != None and sensors[sensorRight] <= distance:
+                right += i * (5 - sensors[sensorRight])
+            sensorLeft = 10 + sensorsToUse - i
+            if sensors[sensorLeft] != None and sensors[sensorLeft] <= distance:
+                left += i * (5 - sensors[sensorLeft])
         
         if sensors[9] != None and sensors[9] <= distance:
             front = 5 - sensors[9]
