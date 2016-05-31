@@ -1,10 +1,6 @@
-from math import *
-
 from numpy import math
-
 from robotsimulator import Robot
 from robotsimulator.World import World
-
 
 def driveCircle(robot, v, r, direction):
     robot.curveDrive(v, r, math.pi)   
@@ -25,7 +21,6 @@ def driveChangeLane(robot, v, r, alfa, length):
     robot.straightDrive(v, length)
     robot.curveDrive(v, r, -alfa)
 
-# Roboter in einer Welt positionieren:
 myWorld = World(20, 20)
 myRobot = Robot.Robot()
 myWorld.setRobot(myRobot, 5, 12, 0)
@@ -43,7 +38,4 @@ myRobot.straightDrive(v, 1)
 
 driveRectangle(myRobot, v, 2, 2)
 
-
-
-# Simulation schliessen:
 myWorld.close()

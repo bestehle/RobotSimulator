@@ -1,12 +1,7 @@
-from math import *
-
 from numpy import math
-
 from robotsimulator import Robot
 from robotsimulator.World import World
 
-
-# Roboter in einer Welt positionieren:
 myWorld = World(40, 20)
 myRobot = Robot.Robot()
 # myRobot.deactivateMotionNoise()
@@ -36,8 +31,6 @@ myRobot.curveDriveTruePose(v, 2, math.pi / 2)
 myRobot.straightDriveTruePose(v, 3)
 myRobot.curveDriveTruePose(v, 2, math.pi / 2)
 myRobot.straightDriveTruePose(v, 1.5)
-
-
 
 # Simulation schliessen:
 myWorld.close()

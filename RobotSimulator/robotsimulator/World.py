@@ -111,7 +111,7 @@ class World:
     def drawPolyline(self, poly, color='green'):
         self.undrawPolyline()
         for n in range(len(poly) - 1):
-            l = Line(Point(poly[n][0], poly[n][1]), Point(poly[n + 1][0], poly[n + 1][1]))
+            l = Line(poly[n], poly[n + 1])
             l.draw(self._win)
             l.setFill(color)
             l.setWidth(3)

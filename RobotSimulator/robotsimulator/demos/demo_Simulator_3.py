@@ -1,8 +1,7 @@
-from math import *
-
+from math import pi
 from robotsimulator import Robot
-from robotsimulator import World
 from robotsimulator.worlds import obstacleWorld3
+from robotsimulator.graphics.graphics import Point
 
 
 # Roboter in obstacleWorld3 positionieren:
@@ -11,7 +10,7 @@ myRobot = Robot.Robot()
 myWorld.setRobot(myRobot, 1, 6, 0)
 
 # Polygonzug, der abgefahren werden soll, einzeichnen:
-polyline = [[1,6],[9.5,6],[10.5,3]]
+polyline = [Point(1,6), Point(9.5,6), Point(10.5,3)]
 myWorld.drawPolyline(polyline)
 
 
