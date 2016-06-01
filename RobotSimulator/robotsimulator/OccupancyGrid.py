@@ -9,8 +9,8 @@
 # O. Bittel
 # V 2.0; 9.3.2016
 
-from robotsimulator.graphics.graphics import *
-
+from robotsimulator.graphics.graphics import GraphWin, Point, Rectangle
+import math
 
 class OccupancyGrid:
 
@@ -21,11 +21,10 @@ class OccupancyGrid:
         # define grid:
         self.xSize = int((width+cellSize/2)/cellSize) + 1
         self.ySize = int((height+cellSize/2)/cellSize) + 1
-        self.grid = [[0 for x in range(self.ySize)] for x in range(self.xSize)]
+        self.grid = [[0 for _ in range(self.ySize)] for _ in range(self.xSize)]
         self.width = width
         self.height = height
         self.cellSize = float(cellSize)
-
 
     def printGrid(self):
         print("xSize*ySize: ", self.xSize, self.ySize)
@@ -96,6 +95,15 @@ class OccupancyGrid:
         yi = int(y/self.cellSize + 0.5)
         self.grid[xi][yi] = value
 
+    # --------
+    # Set grid value at the cell indexes (xi,yi).
+    #
+    def setValueCell(self, xi, yi, value = 1):
+        if xi < 0 or xi > self.xSize-1:
+            return
+        if yi < 0 or yi > self.ySize-1:
+            return
+        self.grid[xi][yi] = value
 
     # --------
     # Get grid value at the coordinate (x,y).
@@ -108,7 +116,66 @@ class OccupancyGrid:
         xi = int(x/self.cellSize + 0.5)
         yi = int(y/self.cellSize + 0.5)
         return self.grid[xi][yi]
+    
+    # --------
+    # Gets the grid value at the cell indexes (xi,yi).
+    #
+    def getValueCell(self, xi, yi):
+        if xi < 0 or xi > self.xSize:
+            return
+        if yi < 0 or yi > self.ySize:
+            return
+        return self.grid[xi][yi]
+  
+    # --------
+    # returns the "eight" neighbors
+    #
+    def getNeighbors(self, coordinates):
+        (x, y) = coordinates
+        # save coordinates of the eight neighbors.
+        results = [(x+1, y), (x, y-1), (x-1, y), (x, y+1), (x+1,y-1), (x-1,y-1), (x-1,y+1),(x+1,y+1)]
+        # filter all coordinates which are not in bounds or a obstacle
+        results = filter(self.inBounds, results)
+        results = filter(self.passable, results)
+        return results
 
+    # --------
+    # true if coordinates is in bounds
+    #
+    def inBounds(self, coordinates):
+        (x, y) = coordinates
+        return (0 <= x < self.xSize and 0 <= y < self.ySize)
+    
+    # --------
+    # true if coordinates is not a obstacle
+    #
+    def passable(self, coordinates):
+        (x,y) = coordinates
+        return (self.getValueCell(x, y) != 1)
+    
+    # --------
+    # returns the cost of b, default cellSize (0.1m)
+    #
+    def cost(self, a, b):
+        (xa,ya) = a
+        (xb,yb) = b
+        # diagonals
+        if(   xb == xa+1 and yb == ya-1
+           or xb == xa-1 and yb == ya-1
+           or xb == xa-1 and yb == ya+1
+           or xb == xa+1 and yb == ya+1 ):
+            return math.sqrt(2)
+        return 1
+    
+    def transformCoordinateToIndexes(self, coordinates):
+        (x,y) = coordinates
+        return ( int(x/self.cellSize + 0.5), int(y/self.cellSize + 0.5) )
+    
+    def transformIndexesToCoordinates(self, coordinates):
+        (xi,yi) = coordinates
+        x = (xi) * self.cellSize
+        y = (yi) * self.cellSize
+        return ( x, y )
 
 def test1():
     myGrid = OccupancyGrid(0, 0, 0.8, 0.5)

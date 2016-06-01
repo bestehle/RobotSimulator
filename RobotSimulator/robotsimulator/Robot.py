@@ -25,7 +25,7 @@ class Robot:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
         self._k_theta = (2.0 * 2.0 / 360.0) * (math.pi / 180.0)  # turning rate noise parameter = 2deg*2deg/360deg * (1rad/1deg)
         self._k_drift = (2.0 * 2.0) / 1.0 * (math.pi / 180.0) ** 2  # drift noise parameter = 2deg*2deg / 1m
-        self._motionNoise = False
+        self._motionNoise = True
         self._maxSpeed = 2  # maximum speed
         self._maxOmega = math.pi  # maximum rotational speed
 
