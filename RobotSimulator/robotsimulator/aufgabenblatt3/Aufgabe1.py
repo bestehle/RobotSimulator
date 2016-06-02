@@ -1,9 +1,11 @@
 from numpy import math
+
+from robotsimulator import Robot
+from robotsimulator.PathPlanning import PathPlanning
+from robotsimulator.World import World
 from robotsimulator.graphics.graphics import Point
 from robotsimulator.worlds import officeWorld
-from robotsimulator import Robot
-from robotsimulator.World import World
-from robotsimulator.PathPlanning import PathPlanning
+
 
 myWorld = World(20, 20)
 myRobot = Robot.Robot()
@@ -14,14 +16,14 @@ start = (2, 7)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
-#pathPlanning.brushfire()
+pathPlanning.brushfire()
 path = pathPlanning.shortestPath(start, goal)
 polyline = []
 for point in path:
     polyline.append(Point(point[0], point[1]))
 myWorld.drawPolyline(polyline, color='green')
 
-v = 0.2
-myRobot.followPolylineWithObstacle(v, polyline, 6, 0.1, 0.1)
+v = 0.5
+myRobot.followPolylineWithObstacle(v, polyline, 6, 0.1, 0.5)
 
 myWorld.close()

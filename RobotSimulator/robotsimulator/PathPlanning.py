@@ -47,10 +47,10 @@ class PathPlanning:
             # visit each neighbor of the current vertex
             for neighbor in self._grid.getNeighbors(current):
                 # with weights from brushfire
-                weight = self._grid.getValueCell(neighbor[0], neighbor[1])
+                weight = abs(self._grid.getValueCell(neighbor[0], neighbor[1]))
                 
                 # calculate the cost to reach the neighbor from the current vertex
-                updatedCost = cost[current] + self._grid.cost(current, neighbor) + weight
+                updatedCost = cost[current] + self._grid.cost(current, neighbor) + weight / 10
                 # save the priority with cost + heuristic
                 priority = updatedCost + self.heuristic(goal, neighbor)
                 
@@ -78,12 +78,12 @@ class PathPlanning:
         for yi in range(self._grid.ySize):
             for xi in range(self._grid.xSize):
                 # check if it is a border cell
-                # - cell need to be a obstacle
-                # - cell need to have minimum one neighbor cell 
-                if((self._grid.getValueCell(xi,yi) == 1) 
-                   and (0 < len(list(self._grid.getNeighbors((xi, yi)))))):
+                # - cell need not to be a obstacle
+                # - cell need to have minimum one neighbor cell which is an obstacle
+                if((self._grid.getValueCell(xi, yi) == 0) 
+                   and (len(list(self._grid.getNeighbors((xi, yi))))) < 8):
                     # add cell to openList with priority 0
-                    cell = (xi,yi)
+                    cell = (xi, yi)
                     openList.insert(cell, 0)
                     cost[cell] = 0
 
@@ -94,22 +94,16 @@ class PathPlanning:
             # visit each neighbor of the current vertex
             for neighbor in self._grid.getNeighbors(current):               
                 # calculate the cost to reach the neighbor from the current vertex
-                updatedCost = cost[current] + self._grid.cost(current, neighbor)
+                updatedCost = cost[current] - self._grid.cost(current, neighbor)
                 # save the priority with cost
-                priority = updatedCost
+                priority = abs(updatedCost)
                 
                 # neighbor is unknown (not visited before)
                 if neighbor not in cost:
                     cost[neighbor] = updatedCost
-                    self._grid.setValueCell(current[0],current[1], updatedCost)
+                    self._grid.setValueCell(current[0], current[1], updatedCost)
                     openList.insert(neighbor, priority)
                 
-                # the cost to reach the neighbor decreased. Update the priority
-                elif updatedCost < cost[neighbor]:
-                    cost[neighbor] = updatedCost
-                    self._grid.setValueCell(current[0],current[1], updatedCost)
-                    openList.changePriority(neighbor, priority)
-    
     # --------
     # Ramer-Douglas-Peucker
     #   
@@ -147,7 +141,7 @@ class PathPlanning:
     #
     def _getGrid(self):
         # calculate the distance to the obstacles to avoid a crash of the robot.
-        robotRadian = self._robot._size/2
+        robotRadian = self._robot._size / 2
         dist = int ((robotRadian + self._safetyDistance) / 0.1)
         # get the grid from the world.
         grid = self._world.getOccupancyGrid()
@@ -156,7 +150,7 @@ class PathPlanning:
         obstacles = []
         for y in range(grid.ySize):
             for x in range(grid.xSize):
-                if grid.getValueCell(x,y) == self.OBSTACLE:
+                if grid.getValueCell(x, y) == self.OBSTACLE:
                     obstacles.append((x, y))
 
         # add obstacles
