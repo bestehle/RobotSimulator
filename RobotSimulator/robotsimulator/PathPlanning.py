@@ -71,7 +71,44 @@ class PathPlanning:
     # brushfire
     #
     def brushfire(self):
-        print ("TODO Brushfire-Algo")
+        # get all border cells
+        openList = PriorityQueue()
+        cost = {}
+        
+        for yi in range(self._grid.ySize):
+            for xi in range(self._grid.xSize):
+                # check if it is a border cell
+                # - cell need to be a obstacle
+                # - cell need to have minimum one neighbor cell 
+                if((self._grid.getValueCell(xi,yi) == 1) 
+                   and (0 < len(list(self._grid.getNeighbors((xi, yi)))))):
+                    # add cell to openList with priority 0
+                    cell = (xi,yi)
+                    openList.insert(cell, 0)
+                    cost[cell] = 0
+
+        while not openList.empty():
+            # visit current vertex
+            current = openList.delMin()
+
+            # visit each neighbor of the current vertex
+            for neighbor in self._grid.getNeighbors(current):               
+                # calculate the cost to reach the neighbor from the current vertex
+                updatedCost = cost[current] + self._grid.cost(current, neighbor)
+                # save the priority with cost
+                priority = updatedCost
+                
+                # neighbor is unknown (not visited before)
+                if neighbor not in cost:
+                    cost[neighbor] = updatedCost
+                    self._grid.setValueCell(current[0],current[1], updatedCost)
+                    openList.insert(neighbor, priority)
+                
+                # the cost to reach the neighbor decreased. Update the priority
+                elif updatedCost < cost[neighbor]:
+                    cost[neighbor] = updatedCost
+                    self._grid.setValueCell(current[0],current[1], updatedCost)
+                    openList.changePriority(neighbor, priority)
     
     # --------
     # Ramer-Douglas-Peucker

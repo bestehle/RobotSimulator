@@ -14,7 +14,7 @@ start = (2, 7)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
-pathPlanning.brushfire()
+#pathPlanning.brushfire()
 path = pathPlanning.shortestPath(start, goal)
 polyline = []
 for point in path:
