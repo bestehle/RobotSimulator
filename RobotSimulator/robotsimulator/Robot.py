@@ -7,7 +7,10 @@
 # V 2.0; 9.3.2016
 
 import random
+
 from numpy import math
+
+from robotsimulator import GeometryHelper
 from robotsimulator.graphics import graphics
 
 
@@ -190,18 +193,10 @@ class Robot:
             self.move([v, omega * sign])
         self.move([v, self.diffDegree(self.getTrueRobotPose()[2], endTheta) / self._T * sign])
 
-    def pdis(self, a, b, c):
-        t = b[0] - a[0], b[1] - a[1]  # Vector ab
-        dd = math.sqrt(t[0] ** 2 + t[1] ** 2)  # Length of ab
-        t = t[0] / dd, t[1] / dd  # unit vector of ab
-        n = -t[1], t[0]  # normal unit vector to ab
-        ac = c[0] - a[0], c[1] - a[1]  # vector ac
-        return ac[0] * n[0] + ac[1] * n[1]  # Projection of ac to n (the minimum distance)
     
     def distance(self, p1, p2):
-        return self.pdis((p1.x, p1.y), (p2.x, p2.y), self.getTrueRobotPose())
+        return GeometryHelper.perpendicularDistance((p1.x, p1.y), (p2.x, p2.y), self.getTrueRobotPose())
 #         return abs((p2.x - p1.x) * (p1.y - self.getTrueRobotPose()[1]) - (p1.x - self.getTrueRobotPose()[0]) * (p2.y - p1.y))
-    
 
     def followLineP(self, v, kp, p1, p2, kd=1):
         e = self.distance(p1, p2)
@@ -294,7 +289,7 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
-            #print(left, right, front, scaledAngle)
+            # print(left, right, front, scaledAngle)
             
             if angle != 0:
                 self.move([v * (1 - abs(scaledAngle) / math.pi), scaledAngle])
@@ -318,7 +313,7 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
-            #print(left, right, front, scaledAngle)
+            # print(left, right, front, scaledAngle)
             
             if angle != 0:
                 self.move([v, scaledAngle])
