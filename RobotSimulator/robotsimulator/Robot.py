@@ -167,10 +167,10 @@ class Robot:
             return
         if r == 0:
             theta = self.getOdoPose()[2] + delta_theta
-            diff = self.diffDegree(theta, self.getOdoPose()[2])
+            diff = GeometryHelper.diffDegree(theta, self.getOdoPose()[2])
             while abs(diff) > 0.01 :
                 self.move([0, diff])
-                diff = self.diffDegree(theta, self.getOdoPose()[2])
+                diff = GeometryHelper.diffDegree(theta, self.getOdoPose()[2])
             return
         else:
             omega = (v / r)
@@ -188,15 +188,14 @@ class Robot:
         else:
             omega = (v / r)
         sign = -1 if delta_theta < 0 else 1
-        endTheta = self.addDegree(self.getTrueRobotPose()[2], delta_theta)
-        while abs(self.diffDegree(self.getTrueRobotPose()[2], endTheta)) >= (omega * self._T) :
+        endTheta = GeometryHelper.addDegree(self.getTrueRobotPose()[2], delta_theta)
+        while abs(GeometryHelper.diffDegree(self.getTrueRobotPose()[2], endTheta)) >= (omega * self._T) :
             self.move([v, omega * sign])
         self.move([v, self.diffDegree(self.getTrueRobotPose()[2], endTheta) / self._T * sign])
 
     
     def distance(self, p1, p2):
         return GeometryHelper.perpendicularDistance((p1.x, p1.y), (p2.x, p2.y), self.getTrueRobotPose())
-#         return abs((p2.x - p1.x) * (p1.y - self.getTrueRobotPose()[1]) - (p1.x - self.getTrueRobotPose()[0]) * (p2.y - p1.y))
 
     def followLineP(self, v, kp, p1, p2, kd=1):
         e = self.distance(p1, p2)
@@ -218,7 +217,7 @@ class Robot:
         [x, y, theta] = self.getTrueRobotPose();
         # calculate the distance between robot and target point
         distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
-        delta_theta = self.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
+        delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
         # point not reached?
         if(distance > tol):
             # drive missing distance
@@ -231,7 +230,7 @@ class Robot:
         while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
-            delta_theta = self.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
+            delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):
                 return True
             self.move([v, delta_theta])
@@ -241,7 +240,7 @@ class Robot:
         while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
-            delta_theta = self.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
+            delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):
                 return True
             if self.obstacleInWay(sensorsToUse, distanceTol):
@@ -383,9 +382,3 @@ class Robot:
     def setWorld(self, world):
         self._world = world
 
-        
-    def addDegree(self, a, b):
-        return (a + b) % (2 * math.pi)
-    
-    def diffDegree(self, a, b):
-        return ((a - b + math.pi) % (2 * math.pi)) - math.pi

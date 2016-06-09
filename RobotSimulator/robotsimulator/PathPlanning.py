@@ -1,5 +1,8 @@
 from numpy import math
+
+from robotsimulator import GeometryHelper
 from robotsimulator.PriorityQueue import PriorityQueue
+
 
 class PathPlanning:
 
@@ -42,6 +45,7 @@ class PathPlanning:
             # if the current vertex is the goal, we have reached the end
             if current == goal:
                 path = self._getPath(cameFrom, start, goal);
+                print("Cost of the route: " + str(cost[goal]))
                 break
 
             # visit each neighbor of the current vertex
@@ -107,8 +111,35 @@ class PathPlanning:
     # --------
     # Ramer-Douglas-Peucker
     #   
-    def rdp(self):
-        print ("TODO Ramer-Douglas-Peucker-Algo")
+
+    # --------
+    # returns the point with the biggest perpendicular distance from 
+    # the Line between the startPoint and the EndPoint of the path
+    #
+    def getMaxDistance(self, path):
+        indexOfMaxDistance = 0
+        maxDistance = 0
+        for i in range(2, len(path) - 1):
+            distance = abs(GeometryHelper.perpendicularDistance(path[0], path[-1], path[i]))
+            if distance > maxDistance:
+                maxDistance = distance
+                indexOfMaxDistance = i
+        
+        return maxDistance, indexOfMaxDistance
+    
+    # --------
+    # Douglas-Peucker-Algorithm
+    #
+    def rdp(self, path, epsilon):
+        maxDistance, indexOfMaxDistance = self.getMaxDistance(path)
+        
+        if maxDistance >= epsilon:
+            left = self.rdp(path[0:indexOfMaxDistance], epsilon)
+            right = self.rdp(path[indexOfMaxDistance:], epsilon)
+            return left + right
+        else:
+            return [path[0], path[-1]]
+        return path
     
     # --------
     # returns the distance from a (x,y) to b(x,y)

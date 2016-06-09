@@ -10,3 +10,10 @@ def perpendicularDistance(lineA, lineB, point):
     n = -t[1], t[0]  # normal unit vector to ab
     ac = point[0] - lineA[0], point[1] - lineA[1]  # vector ac
     return ac[0] * n[0] + ac[1] * n[1]  # Projection of ac to n (the minimum distance)
+
+        
+def addDegree(a, b):
+    return (a + b) % (2 * math.pi)
+
+def diffDegree(a, b):
+    return ((a - b + math.pi) % (2 * math.pi)) - math.pi
