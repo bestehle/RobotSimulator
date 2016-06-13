@@ -268,7 +268,7 @@ class Robot:
             
             
     def obstacleInWay(self, sensorsToUse, distance):
-        left, right, front = self.getSensorData(sensorsToUse, distance)
+        left, right, front = self.getWeightedSensorData(sensorsToUse, distance)
         return left != 0 or right != 0 or front != 0
     
     def avoidObstacle(self, v, sensorsToUse=3, distance=5):
@@ -276,7 +276,7 @@ class Robot:
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
             x = x + 1
-            left, right, front = self.getSensorData(sensorsToUse, distance)  
+            left, right, front = self.getWeightedSensorData(sensorsToUse, distance)  
             
             if self.isInDeadEnd(distance, scale, left, right, front):
                 self.move([0, -self._maxOmega])
@@ -300,7 +300,7 @@ class Robot:
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
             x = x + 1
-            left, right, front = self.getSensorData(sensorsToUse, distance)  
+            left, right, front = self.getWeightedSensorData(sensorsToUse, distance)  
             
             if self.isInDeadEnd(distance, scale, left, right, front):
                 self.move([0, -self._maxOmega])
@@ -319,7 +319,7 @@ class Robot:
             else:
                 self.moveRandom(v, x, scaledAngle)
 
-    def getSensorData(self, sensorsToUse, distance):
+    def getWeightedSensorData(self, sensorsToUse, distance):
         sensors = self.sense()
         right = 0
         left = 0
