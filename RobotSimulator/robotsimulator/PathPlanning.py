@@ -1,3 +1,5 @@
+from math import sqrt
+
 from numpy import math
 
 from robotsimulator import GeometryHelper
@@ -22,7 +24,7 @@ class PathPlanning:
     # --------
     # Get shortest path from start to goal with A* algorithm
     #
-    def shortestPath(self, start, goal):
+    def shortestPath(self, start, goal, weightOfBrushfire=100):
         path = None
         # start and goal are points. Get the index in the grid.
         start = self._grid.transformCoordinateToIndexes(start)
@@ -51,10 +53,10 @@ class PathPlanning:
             # visit each neighbor of the current vertex
             for neighbor in self._grid.getNeighbors(current):
                 # with weights from brushfire
-                weight = abs(self._grid.getValueCell(neighbor[0], neighbor[1]))
+                weight = (1 / sqrt(max(1, abs(self._grid.getValueCell(neighbor[0], neighbor[1]))))) / weightOfBrushfire
                 
                 # calculate the cost to reach the neighbor from the current vertex
-                updatedCost = cost[current] + self._grid.cost(current, neighbor) + weight / 10
+                updatedCost = cost[current] + self._grid.cost(current, neighbor) + weight
                 # save the priority with cost + heuristic
                 priority = updatedCost + self.heuristic(goal, neighbor)
                 
