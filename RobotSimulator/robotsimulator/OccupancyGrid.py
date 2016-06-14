@@ -37,7 +37,7 @@ class OccupancyGrid:
                 s += "|%2.1f" % abs(self.grid[xi][yi])
             print(s)
 
-    def drawGrid(self):
+    def drawGrid(self, scale=10):
         # define graphic window:
         win = GraphWin("Occupancy Grid", int(800.0 * self.width / self.height), 800, autoflush=False)
         win.setCoords(-self.cellSize, -self.cellSize, self.width + self.cellSize, self.height + 2 * self.cellSize)
@@ -55,7 +55,7 @@ class OccupancyGrid:
                     p1 = Point(xi * self.cellSize, yi * self.cellSize)
                     p2 = Point((xi + 1) * self.cellSize, (yi + 1) * self.cellSize)
                     r = Rectangle(p1, p2)
-                    color = min(255, int(abs(self.grid[xi][yi]) * 20))
+                    color = min(255, int(abs(self.grid[xi][yi]) * scale))
                     r.setFill(graphics.color_rgb(color, color, color))
                     r.draw(win)
 
