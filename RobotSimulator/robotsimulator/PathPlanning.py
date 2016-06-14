@@ -17,7 +17,7 @@ class PathPlanning:
         self._world = world
         # offset to add to the size of the robot
         self._safetyDistance = 0.1
-        self._grid = self._getGrid()
+        self._grid = self._world.getOccupancyGrid()
 
     # --------
     # Get shortest path from start to goal with A* algorithm
@@ -102,10 +102,10 @@ class PathPlanning:
                 # save the priority with cost
                 priority = abs(updatedCost)
                 
-                # neighbor is unknown (not visited before)
-                if neighbor not in cost:
+                # neighbor is unknown (not visited before) or shorter path found
+                if neighbor not in cost  or cost[neighbor] < updatedCost:
                     cost[neighbor] = updatedCost
-                    self._grid.setValueCell(current[0], current[1], updatedCost)
+                    self._grid.setValueCell(neighbor[0], neighbor[1], updatedCost)
                     openList.insert(neighbor, priority)
                 
     # --------
@@ -168,26 +168,22 @@ class PathPlanning:
         return path
 
     # --------
-    # Get the grid and add the safety distance to the original grid.
+    # Add the safety distance to the original grid.
     #
-    def _getGrid(self):
+    def addSafetyDistance(self):
         # calculate the distance to the obstacles to avoid a crash of the robot.
         robotRadian = self._robot._size / 2
         dist = int ((robotRadian + self._safetyDistance) / 0.1)
-        # get the grid from the world.
-        grid = self._world.getOccupancyGrid()
 
         # get a list with all obstacles
         obstacles = []
-        for y in range(grid.ySize):
-            for x in range(grid.xSize):
-                if grid.getValueCell(x, y) == self.OBSTACLE:
+        for y in range(self._grid.ySize):
+            for x in range(self._grid.xSize):
+                if self._grid.getValueCell(x, y) == self.OBSTACLE:
                     obstacles.append((x, y))
 
         # add obstacles
         for obstacle in obstacles:
             for x in range(obstacle[0] - dist, obstacle[0] + dist + 1):
                 for y in range(obstacle[1] - dist, obstacle[1] + dist + 1):
-                    grid.setValueCell(x, y, self.OBSTACLE)
-
-        return grid
+                    self._grid.setValueCell(x, y, self.OBSTACLE)

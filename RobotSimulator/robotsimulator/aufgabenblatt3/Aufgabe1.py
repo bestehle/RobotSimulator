@@ -16,7 +16,11 @@ start = (2, 7)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
+pathPlanning.addSafetyDistance()
 pathPlanning.brushfire()
+pathPlanning._grid.drawGrid()
+pathPlanning._grid.printGrid()
+
 path = pathPlanning.shortestPath(start, goal)
 path = pathPlanning.rdp(path, 0.25)
 polyline = []
