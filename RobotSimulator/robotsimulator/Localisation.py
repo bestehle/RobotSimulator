@@ -9,32 +9,38 @@ import numpy
 from robotsimulator.PathPlanning import PathPlanning
 
 
-class Localistaion(object):
-    '''
-    classdocs
-    '''
-
-
+class Localisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world):
+    def __init__(self, robot, world, particles=100):
         self._robot = robot
         self._world = world
+        self._particles = particles
         
         self._pathPlaning = PathPlanning(robot, world)
         self._pathPlaning.brushfire()
 #         self._pathPlaning._grid.drawGrid()
 #         self._pathPlaning._grid.printGrid()
         
+    # --------
+    # check: call this method cyclic to run the localisation algorithm
+    # while driving
+    #
+    def check(self):
+        print("start localisation")
+        particles = self.generateParticles()#
+        self._world.drawParticles(particles)
         
-    def generateParticles(self, position, particles=100):
-        xValues = map(lambda x: (x - 0.5) * 3 + position[0], numpy.random.random(particles))
-        yValues = map(lambda x: (x - 0.5) * 3 + position[1], numpy.random.random(particles))
-        thetaValues = map(lambda x: x * math.pi * 2, numpy.random.random(particles))
-        weightValues = [0] * particles
         
-        return zip(xValues, yValues, thetaValues, weightValues)
+    def generateParticles(self):
+        [xPos, yPos, _] = self._robot.getTrueRobotPose()
+        xValues = map(lambda x: (x - 0.5) * 3 + xPos, numpy.random.random(self._particles))
+        yValues = map(lambda x: (x - 0.5) * 3 + yPos, numpy.random.random(self._particles))
+        thetaValues = map(lambda x: x * math.pi * 2, numpy.random.random(self._particles))
+        weightValues = [0] * self._particles
+        
+        return list(zip(xValues, yValues, thetaValues, weightValues))
         
     def localizeObstacles(self, position):
         obstacles = map(self._calculatePosition, self._robot.getSensorDirections(),
