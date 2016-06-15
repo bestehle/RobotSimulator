@@ -1,10 +1,7 @@
 from math import sqrt
-
 from numpy import math
-
 from robotsimulator import GeometryHelper
 from robotsimulator.PriorityQueue import PriorityQueue
-
 
 class PathPlanning:
 
@@ -12,13 +9,8 @@ class PathPlanning:
     # init: Sets the robot and the world
     #
     def __init__(self, robot, world):
-        # constants
-        self.OBSTACLE = 1
-        
         self._robot = robot
         self._world = world
-        # offset to add to the size of the robot
-        self._safetyDistance = 0.1
         self._grid = self._world.getOccupancyGrid()
 
     # --------
@@ -72,47 +64,6 @@ class PathPlanning:
                     cameFrom[neighbor] = current
                     openList.changePriority(neighbor, priority)
         return path
-    
-    # --------
-    # brushfire
-    #
-    def brushfire(self):
-        # get all border cells
-        openList = PriorityQueue()
-        cost = {}
-        
-        for yi in range(self._grid.ySize):
-            for xi in range(self._grid.xSize):
-                # check if it is a border cell
-                # - cell need not to be a obstacle
-                # - cell need to have minimum one neighbor cell which is an obstacle
-                if((self._grid.getValueCell(xi, yi) == 0) 
-                   and (len(list(self._grid.getNeighbors((xi, yi))))) < 8):
-                    # add cell to openList with priority 0
-                    cell = (xi, yi)
-                    openList.insert(cell, 0)
-                    cost[cell] = 0
-
-        while not openList.empty():
-            # visit current vertex
-            current = openList.delMin()
-
-            # visit each neighbor of the current vertex
-            for neighbor in self._grid.getNeighbors(current):               
-                # calculate the cost to reach the neighbor from the current vertex
-                updatedCost = cost[current] - self._grid.cost(current, neighbor)
-                # save the priority with cost
-                priority = abs(updatedCost)
-                
-                # neighbor is unknown (not visited before) or shorter path found
-                if neighbor not in cost  or cost[neighbor] < updatedCost:
-                    cost[neighbor] = updatedCost
-                    self._grid.setValueCell(neighbor[0], neighbor[1], updatedCost)
-                    openList.insert(neighbor, priority)
-                
-    # --------
-    # Ramer-Douglas-Peucker
-    #   
 
     # --------
     # returns the point with the biggest perpendicular distance from 
@@ -168,24 +119,3 @@ class PathPlanning:
             path.append(self._grid.transformIndexesToCoordinates(current))
         path.reverse()
         return path
-
-    # --------
-    # Add the safety distance to the original grid.
-    #
-    def addSafetyDistance(self):
-        # calculate the distance to the obstacles to avoid a crash of the robot.
-        robotRadian = self._robot._size / 2
-        dist = int ((robotRadian + self._safetyDistance) / 0.1)
-
-        # get a list with all obstacles
-        obstacles = []
-        for y in range(self._grid.ySize):
-            for x in range(self._grid.xSize):
-                if self._grid.getValueCell(x, y) == self.OBSTACLE:
-                    obstacles.append((x, y))
-
-        # add obstacles
-        for obstacle in obstacles:
-            for x in range(obstacle[0] - dist, obstacle[0] + dist + 1):
-                for y in range(obstacle[1] - dist, obstacle[1] + dist + 1):
-                    self._grid.setValueCell(x, y, self.OBSTACLE)

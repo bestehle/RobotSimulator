@@ -16,10 +16,9 @@ start = (2, 7)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
-pathPlanning.addSafetyDistance()
-pathPlanning.brushfire()
+pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
+pathPlanning._grid.brushfire()
 pathPlanning._grid.drawGrid()
-pathPlanning._grid.printGrid()
 
 path = pathPlanning.shortestPath(start, goal)
 path = pathPlanning.rdp(path, 0.25)

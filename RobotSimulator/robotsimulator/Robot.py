@@ -7,7 +7,6 @@
 # V 2.0; 9.3.2016
 
 import random
-
 from numpy import math
 
 from robotsimulator import GeometryHelper

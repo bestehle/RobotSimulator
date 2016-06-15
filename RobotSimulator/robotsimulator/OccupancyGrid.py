@@ -13,7 +13,7 @@ import math
 
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import GraphWin, Point, Rectangle
-
+from robotsimulator.PriorityQueue import PriorityQueue
 
 class OccupancyGrid:
 
@@ -21,6 +21,8 @@ class OccupancyGrid:
     # init: creates a an empty occupancy grid with the given cell size
     #
     def __init__(self, xll, yll, width, height, cellSize=0.1):
+        # constants
+        self.OBSTACLE = 1
         # define grid:
         self.xSize = int((width + cellSize / 2) / cellSize) + 1
         self.ySize = int((height + cellSize / 2) / cellSize) + 1
@@ -186,6 +188,64 @@ class OccupancyGrid:
         x = (xi) * self.cellSize
         y = (yi) * self.cellSize
         return (x, y)
+    
+    # --------
+    # brushfire
+    #
+    def brushfire(self):
+        # get all border cells
+        openList = PriorityQueue()
+        cost = {}
+        
+        for yi in range(self.ySize):
+            for xi in range(self.xSize):
+                # check if it is a border cell
+                # - cell need not to be a obstacle
+                # - cell need to have minimum one neighbor cell which is an obstacle
+                if((self.getValueCell(xi, yi) == 0) 
+                   and (len(list(self.getNeighbors((xi, yi))))) < 8):
+                    # add cell to openList with priority 0
+                    cell = (xi, yi)
+                    openList.insert(cell, 0)
+                    cost[cell] = 0
+
+        while not openList.empty():
+            # visit current vertex
+            current = openList.delMin()
+
+            # visit each neighbor of the current vertex
+            for neighbor in self.getNeighbors(current):               
+                # calculate the cost to reach the neighbor from the current vertex
+                updatedCost = cost[current] - self.cost(current, neighbor)
+                # save the priority with cost
+                priority = abs(updatedCost)
+                
+                # neighbor is unknown (not visited before) or shorter path found
+                if neighbor not in cost  or cost[neighbor] < updatedCost:
+                    cost[neighbor] = updatedCost
+                    self.setValueCell(neighbor[0], neighbor[1], updatedCost)
+                    openList.insert(neighbor, priority)
+                    
+    # --------
+    # Add the safety distance to the original grid.
+    #
+    def addSafetyDistance(self, robot, safetyDistance):
+        # calculate the distance to the obstacles to avoid a crash of the robot.
+        robotRadian = robot._size / 2
+        dist = int ((robotRadian + safetyDistance) / 0.1)
+
+        # get a list with all obstacles
+        obstacles = []
+        for y in range(self.ySize):
+            for x in range(self.xSize):
+                if self.getValueCell(x, y) == self.OBSTACLE:
+                    obstacles.append((x, y))
+
+        # add obstacles
+        for obstacle in obstacles:
+            for x in range(obstacle[0] - dist, obstacle[0] + dist + 1):
+                for y in range(obstacle[1] - dist, obstacle[1] + dist + 1):
+                    self.setValueCell(x, y, self.OBSTACLE)
 
 def test1():
     myGrid = OccupancyGrid(0, 0, 0.8, 0.5)
