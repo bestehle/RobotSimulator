@@ -10,6 +10,8 @@ myRobot = Robot.Robot()
 myWorld.setRobot(myRobot, 6, 7, 0 * math.pi)
 
 localisation = Localisation(myRobot, myWorld)
-localisation.check()
+myRobot.onMove(localisation.check)
+
+myRobot.braitenberg(0.5, 6, 3)
 
 myWorld.close()

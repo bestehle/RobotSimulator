@@ -11,7 +11,7 @@ import random
 from numpy import math
 
 from robotsimulator import GeometryHelper
-from robotsimulator.graphics import graphics
+from robotsimulator.EventEmitter import EventEmitter
 
 
 class Robot:
@@ -43,6 +43,9 @@ class Robot:
         self._odoX = 0.0
         self._odoY = 0.0
         self._odoTheta = math.pi / 2
+        
+        # initialize event emitter which will be called after each move cycle.
+        self._moveListener = EventEmitter()
         
     def activateMotionNoise(self):
         self._motionNoise = True
@@ -96,6 +99,12 @@ class Robot:
         return self._world.getTrueRobotPose()
 
     # --------
+    # add a move listener
+    #
+    def onMove(self, method):
+        self._moveListener += method
+
+    # --------
     # move the robot for the next time step T by the
     # command motion = [v,omega].
     # Returns False if robot is stalled.
@@ -139,6 +148,10 @@ class Robot:
         # Move robot in the world (with noise):
         d_noisy = v_noisy * self._T
         dTheta_noisy = omega_noisy * self._T
+        
+        # call the move listeners
+        self._moveListener.emit()
+        
         return self._world.moveRobot(d_noisy, dTheta_noisy, self._T)
 
     # dirves length l with speed v 
