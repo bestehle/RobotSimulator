@@ -104,6 +104,9 @@ class World:
 
         # Drawn Polyline:
         self._drawnPolyline = []
+        
+        # Drawn Particles:
+        self._drawnParticles = []
 
     # --------
     # Draw a polyline.
@@ -126,6 +129,29 @@ class World:
         for l in self._drawnPolyline:
             l.undraw()
         self._drawnPolyline = []
+        
+    # --------
+    # Draw a polyline.
+    #
+    def drawParticles(self, poly, color='black'):
+        self.undrawParticles()
+        print (poly)
+        for n in range(len(poly) - 1):
+            p = Point(poly[n][0], poly[n][1])
+            c = Circle(p, 0.08)
+            c.draw(self._win)
+            c.setFill(color)
+            self._drawnParticles.append(c)
+
+    # --------
+    # Undraw the polyline.
+    #
+    def undrawParticles(self):
+        if self._drawnParticles == []:
+            return
+        for l in self._drawnParticles:
+            l.undraw()
+        self._drawnParticles = []
 
 
     # --------
