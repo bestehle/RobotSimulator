@@ -24,8 +24,17 @@ class Localisation:
     # while driving
     #
     def check(self):
+        xk1 = []
+
+        for i in range(0, self._numberOfParticles):
+            # Bewegungsmodell: Hier wird auf Partikel i ein zufällig generierter Steuerbefehl angewendet. 
+            xk1.append(self._sampleMotionModel(i))
+            # Messmodell: Hier wird geprüft, wie gut die gemessenen Sensorwerte z_k+1 zur Position x_k1[i] in einer
+            # Umgebungskarte (map) m passen. 
+            self._measurementModel()
+        
+        #self._particles = self._resampling()
         self._world.drawParticles(self._particles)
-        self._resampling()
         
         
     def _generateParticles(self):
@@ -85,3 +94,17 @@ class Localisation:
             pulledParticles.append(self._particles[m])
         
         return pulledParticles
+    
+    # --------
+    # Add random sample motion to the particle i where 0 <= i < self._particles.length
+    #
+    def _sampleMotionModel(self, i):
+        # TODO
+        return 0
+        
+    # --------
+    # Check with Likelihood-Field
+    #
+    def _measurementModel(self):
+        # TODO
+        return 0
