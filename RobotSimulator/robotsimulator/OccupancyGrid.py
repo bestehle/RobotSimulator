@@ -11,9 +11,10 @@
 
 import math
 
+from robotsimulator.PriorityQueue import PriorityQueue
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import GraphWin, Point, Rectangle
-from robotsimulator.PriorityQueue import PriorityQueue
+
 
 class OccupancyGrid:
 
@@ -129,6 +130,21 @@ class OccupancyGrid:
         yi = int(y / self.cellSize + 0.5)
         return self.grid[xi][yi]
     
+    def getValueWeight(self, x, y):
+        value = self.getValue(x, y)
+        if value is None:
+            x = abs(x) % self.xSize
+            y = abs(y) % self.ySize
+            if x < 0 or x > self.xSize:
+                if 0 < y < self.ySize:
+                    value = -x
+                else:
+                    value = -math.sqrt(x ** 2 + y ** 2)
+            value = -y
+        if value < 1:
+            return 1.0 / (abs(value) + 2)
+        return value
+    
     # --------
     # Gets the grid value at the cell indexes (xi,yi).
     #
@@ -138,6 +154,7 @@ class OccupancyGrid:
         if yi < 0 or yi > self.ySize:
             return
         return self.grid[xi][yi]
+    
   
     # --------
     # returns the "eight" neighbors

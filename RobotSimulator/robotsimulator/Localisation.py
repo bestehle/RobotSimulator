@@ -1,5 +1,6 @@
-from numpy import random
 from numpy import math
+from numpy import random
+
 
 class Localisation:
     # --------
@@ -26,14 +27,13 @@ class Localisation:
     def check(self):
         xk1 = []
 
-        for i in range(0, self._numberOfParticles):
-            # Bewegungsmodell: Hier wird auf Partikel i ein zufällig generierter Steuerbefehl angewendet. 
-            xk1.append(self._sampleMotionModel(i))
-            # Messmodell: Hier wird geprüft, wie gut die gemessenen Sensorwerte z_k+1 zur Position x_k1[i] in einer
-            # Umgebungskarte (map) m passen. 
-            self._measurementModel()
+        # Bewegungsmodell: Hier wird auf Partikel i ein zufï¿½llig generierter Steuerbefehl angewendet. 
+#         xk1.append(self._sampleMotionModel(i))
+        # Messmodell: Hier wird geprï¿½ft, wie gut die gemessenen Sensorwerte z_k+1 zur Position x_k1[i] in einer
+        # Umgebungskarte (map) m passen. 
+        self._measurementModel()
         
-        #self._particles = self._resampling()
+        self._particles = self._resampling()
         self._world.drawParticles(self._particles)
         
         
@@ -45,26 +45,31 @@ class Localisation:
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
-        return list(zip(xValues, yValues, thetaValues, weightValues, sumValues))
+        return [list(a) for a in zip(xValues, yValues, thetaValues, weightValues, sumValues)]
+    
         
-    def localizeObstacles(self, position):
-        obstacles = map(self._calculatePosition, self._robot.getSensorDirections(),
-                        self._robot.sense(), [position] * len(self._robot.sense()))
-        match = 0
-        for obstacle in obstacles:
-            if obstacle != None:
-                match += max(1, abs(self._world._grid.getValueCell(int(obstacle[0] * 10), int(obstacle[1] * 10)))) - 1
-            
-        print(match)
+    def matchParticle(self, particle):
+        weight = 0
+        sensorData = zip(self._robot.getSensorDirections(), self._robot.sense())
+        for direction, distance in sensorData:
+            if distance is not None:
+                sensorPosition = self._calculatePosition(direction, distance, particle)
+                weight += self._grid.getValueWeight(sensorPosition[0], sensorPosition[1])
+            else:
+                sensorPosition = self._calculatePosition(direction, 5, particle)
+                currentWeight = self._grid.getValueWeight(sensorPosition[0], sensorPosition[1])
+                if currentWeight == 1:
+                    weight += 1 
+                else: 
+                    weight += 0
+        return weight
+                
         
         
     def _calculatePosition(self, direction, distance, position):
-        if distance is None:
-            return None
         absDirection = position[2] + direction
         x = math.cos(absDirection) * distance
         y = math.sin(absDirection) * distance
-        
         return position[0] + x, position[1] + y
     
     # --------
@@ -73,7 +78,7 @@ class Localisation:
     #
     def _resampling(self):
         pulledParticles = []
-        maximum  = sum(p[self.WEIGHT] for p in self._particles)
+        maximum = sum(p[self.WEIGHT] for p in self._particles)
     
         # pull particles
         for _ in range(self._numberOfParticles):
@@ -82,12 +87,12 @@ class Localisation:
             re = self._numberOfParticles - 1
             # binary search
             while li <= re:
-                m = int((li + re)/2)
+                m = int((li + re) / 2)
 
                 if item < self._particles[m][self.SUM]:
-                    re = m-1
+                    re = m - 1
                 elif item > self._particles[m][self.SUM]:
-                    li = m+1
+                    li = m + 1
                 else:
                     break
         
@@ -106,5 +111,10 @@ class Localisation:
     # Check with Likelihood-Field
     #
     def _measurementModel(self):
-        # TODO
+        sum = 0
+        for i in range(len(self._particles)):
+            self._particles[i][self.SUM] = sum
+            weight = self.matchParticle(self._particles[i])
+            sum += weight
+            self._particles[i][self.WEIGHT] = weight
         return 0
