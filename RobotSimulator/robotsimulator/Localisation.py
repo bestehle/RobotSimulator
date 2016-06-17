@@ -1,12 +1,11 @@
 from numpy import math
 from numpy import random
 
-
 class Localisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world, numberOfParticles=100):
+    def __init__(self, robot, world, numberOfParticles=200):
         # const
         self.X = 0
         self.Y = 1
@@ -25,16 +24,13 @@ class Localisation:
     # while driving
     #
     def check(self):
-        xk1 = []
-
-        # Bewegungsmodell: Hier wird auf Partikel i ein zuf�llig generierter Steuerbefehl angewendet. 
-#         xk1.append(self._sampleMotionModel(i))
-        # Messmodell: Hier wird gepr�ft, wie gut die gemessenen Sensorwerte z_k+1 zur Position x_k1[i] in einer
-        # Umgebungskarte (map) m passen. 
+        self._world.drawParticles(self._particles)
+        self._sampleMotionModel()
         self._measurementModel()
         
-        self._particles = self._resampling()
-        self._world.drawParticles(self._particles)
+        # TODO use particles from re-sampling
+        #self._particles = self._resampling()
+        self._resampling()
         
         
     def _generateParticles(self):
@@ -79,7 +75,8 @@ class Localisation:
     def _resampling(self):
         pulledParticles = []
         maximum = sum(p[self.WEIGHT] for p in self._particles)
-    
+        pulled = {}
+        print ("maximum is : " , maximum)
         # pull particles
         for _ in range(self._numberOfParticles):
             item = random.uniform(0, maximum)
@@ -97,24 +94,70 @@ class Localisation:
                     break
         
             pulledParticles.append(self._particles[m])
+            if (m in pulled):
+                pulled[m] += 1
+            else:
+                pulled[m] = 1
         
+        print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
+
         return pulledParticles
     
     # --------
     # Add random sample motion to the particle i where 0 <= i < self._particles.length
     #
-    def _sampleMotionModel(self, i):
-        # TODO
-        return 0
+    def _sampleMotionModel(self):
+        for i in range(len(self._particles)):
+            v = self._robot._currentV
+            omega = self._robot._currentOmega
+            
+            sigma_v_2 = (self._robot._k_d / self._robot._T) * abs(v)
+            v_noisy = v + random.uniform(0.0, math.sqrt(sigma_v_2))
+    
+            # Add noise to omega:
+            sigma_omega_tr_2 = (self._robot._k_theta / self._robot._T) * abs(omega)  # turning rate noise
+            sigma_omega_drift_2 = (self._robot._k_drift / self._robot._T) * abs(v)  # drift noise
+            omega_noisy = omega + random.uniform(0.0, math.sqrt(sigma_omega_tr_2))
+            omega_noisy += random.uniform(0.0, math.sqrt(sigma_omega_drift_2))
+            
+            omega = omega_noisy
+            v = v_noisy
+    
+            # translational and rotational speed is limited:
+            if omega > self._robot._maxOmega:
+                omega = self._robot._maxOmega
+            if omega < -self._robot._maxOmega:
+                omega = -self._robot._maxOmega
+            if v > self._robot._maxSpeed:
+                v = self._robot._maxSpeed
+            if v < -self._robot._maxSpeed:
+                v = -self._robot._maxSpeed
+    
+            d = v * self._robot._T
+            dTheta = omega * self._robot._T
+            
+            x = self._particles[i][self.X]
+            y = self._particles[i][self.Y]
+            theta = self._particles[i][self.THETA]
+    
+            x = (x + d * math.cos(theta + 0.5 * dTheta))
+            y = (y + d * math.sin(theta + 0.5 * dTheta))
+            theta = (theta + dTheta) % (2 * math.pi)
+            
+            #print (x , y)
+    
+            self._particles[i][self.X] = x
+            self._particles[i][self.Y] = y
+            self._particles[i][self.THETA] = theta
         
     # --------
     # Check with Likelihood-Field
     #
     def _measurementModel(self):
-        sum = 0
+        weightSum = 0
         for i in range(len(self._particles)):
-            self._particles[i][self.SUM] = sum
+            self._particles[i][self.SUM] = weightSum
             weight = self.matchParticle(self._particles[i])
-            sum += weight
+            #print ("weight", weight)
+            weightSum += weight
             self._particles[i][self.WEIGHT] = weight
-        return 0

@@ -111,6 +111,8 @@ class Robot:
     def move(self, motion):
         v = motion[0]
         omega = motion[1]
+        self._currentV = v
+        self._currentOmega = omega
 
         # translational and rotational speed is limited:
         if omega > self._maxOmega:
@@ -122,7 +124,7 @@ class Robot:
         if v < -self._maxSpeed:
             v = -self._maxSpeed
 
-#         print ("motion ", v, omega * 180 / pi)
+        #print ("motion ", v, omega * 180 / math.pi)
 
         # Odometry pose update (based on the motion command):
         d = v * self._T
@@ -271,7 +273,7 @@ class Robot:
         i = 0
         for p in poly:
             i += 1
-            print("Polyline : ", i)
+            #print("Polyline : ", i)
             while True:
                 if not self.gotoWithObstacle(v, p, tol, sensorsToUse, distance):
                     self.avoidObstacle(v, sensorsToUse, distance)
@@ -355,7 +357,7 @@ class Robot:
 
     def moveRandom(self, v, x, scaledAngle):
         if x % 30 == 0:
-            for j in range(1, 4):
+            for _ in range(1, 4):
                 self.move([v, (random.random() - 0.5) * 2 * math.pi])
         else:
             self.move([v, scaledAngle])
