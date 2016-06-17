@@ -135,7 +135,6 @@ class World:
     #
     def drawParticles(self, poly, color='black'):
         self.undrawParticles()
-        print (poly)
         for n in range(len(poly) - 1):
             p = Point(poly[n][0], poly[n][1])
             c = Circle(p, 0.08)

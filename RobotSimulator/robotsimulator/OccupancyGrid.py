@@ -124,10 +124,11 @@ class OccupancyGrid:
     def getValue(self, x, y):
         if x < 0 or x > self.width:
             return
-        if y < 0 or y > self.width:
+        if y < 0 or y > self.height:
             return
         xi = int(x / self.cellSize + 0.5)
         yi = int(y / self.cellSize + 0.5)
+
         return self.grid[xi][yi]
     
     def getValueWeight(self, x, y):
