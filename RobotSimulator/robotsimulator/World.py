@@ -137,7 +137,7 @@ class World:
         self.undrawParticles()
         for n in range(len(poly) - 1):
             p = Point(poly[n][0], poly[n][1])
-            c = Circle(p, 0.08)
+            c = Circle(p, 0.04)
             c.draw(self._win)
             c.setFill(color)
             self._drawnParticles.append(c)

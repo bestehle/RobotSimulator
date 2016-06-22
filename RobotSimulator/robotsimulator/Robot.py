@@ -391,6 +391,20 @@ class Robot:
             return distAngles
 
     # --------
+    # Sense Landmarks
+    # Returns distance measurements of the landmarks from the current position
+    # of the robot
+    #
+    def senseLandmarks(self, landmarks):
+        ret = []
+        (posX, posY, _) = self.getTrueRobotPose()
+        for (landX, landY) in landmarks:
+            distance = math.sqrt((landX - posX)**2 + (landY - posY)**2)
+            distance += random.gauss(0, self._sensorNoise)
+            ret.append(distance)
+        return ret
+
+    # --------
     # set world
     #
     def setWorld(self, world):

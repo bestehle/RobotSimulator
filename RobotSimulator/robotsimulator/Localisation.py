@@ -18,6 +18,10 @@ class Localisation:
         self._grid = self._world.getOccupancyGrid()
         self._numberOfParticles = numberOfParticles
         self._particles = self._generateParticles()
+        self._landmarks = []
+
+    def addLandmark(self, x, y):
+        self._landmarks.append((x, y))
 
     # --------
     # check: call this method cyclic to run the localisation algorithm
@@ -26,11 +30,10 @@ class Localisation:
     def check(self):
         self._world.drawParticles(self._particles)
         self._sampleMotionModel()
-        self._measurementModel()
+        #self._measurementModelSensors()
+        self._measurementModelLandMarks()
         
-        # TODO use particles from re-sampling
         #self._particles = self._resampling()
-        self._resampling()
         
         
     def _generateParticles(self):
@@ -76,10 +79,11 @@ class Localisation:
         pulledParticles = []
         maximum = sum(p[self.WEIGHT] for p in self._particles)
         pulled = {}
-        print ("maximum is : " , maximum)
+        # print ("maximum is : " , maximum)
         # pull particles
         for _ in range(self._numberOfParticles):
             item = random.uniform(0, maximum)
+            # print ("random : ", item)
             li = 0
             re = self._numberOfParticles - 1
             # binary search
@@ -92,22 +96,25 @@ class Localisation:
                     li = m + 1
                 else:
                     break
-        
-            pulledParticles.append(self._particles[m])
+
+            x = self._particles[m][self.X]
+            y = self._particles[m][self.Y]
+            theta = self._particles[m][self.THETA]
+            pulledParticles.append([x, y, theta, 0, 0])
             if (m in pulled):
                 pulled[m] += 1
             else:
                 pulled[m] = 1
         
-        print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
+        #print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
 
         return pulledParticles
     
     # --------
-    # Add random sample motion to the particle i where 0 <= i < self._particles.length
+    # Add random sample motion to all particles
     #
     def _sampleMotionModel(self):
-        for i in range(len(self._particles)):
+        for i in range(self._numberOfParticles):
             v = self._robot._currentV
             omega = self._robot._currentOmega
             
@@ -143,17 +150,17 @@ class Localisation:
             x = (x + d * math.cos(theta + 0.5 * dTheta))
             y = (y + d * math.sin(theta + 0.5 * dTheta))
             theta = (theta + dTheta) % (2 * math.pi)
-            
-            #print (x , y)
     
             self._particles[i][self.X] = x
             self._particles[i][self.Y] = y
             self._particles[i][self.THETA] = theta
+            self._particles[i][self.WEIGHT] = 0
+            self._particles[i][self.SUM] = 0
         
     # --------
-    # Check with Likelihood-Field
+    # Check how good the particles are and set the weight of each particle with the Likelihood-Field
     #
-    def _measurementModel(self):
+    def _measurementModelSensors(self):
         weightSum = 0
         for i in range(len(self._particles)):
             self._particles[i][self.SUM] = weightSum
@@ -161,3 +168,33 @@ class Localisation:
             #print ("weight", weight)
             weightSum += weight
             self._particles[i][self.WEIGHT] = weight
+    
+    # --------
+    # Check how good the particles are and set the weight of each particle with the distance to landmarks
+    #        
+    def _measurementModelLandMarks(self):
+        # get the distance for each landMark to the current approximate robot position
+        robotDistance = self._robot.senseLandmarks(self._landmarks)
+
+        weightSum = 0
+        # check each particle
+        for i in range(self._numberOfParticles):
+            self._particles[i][self.SUM] = weightSum
+            self._particles[i][self.WEIGHT] = 1
+            # check each landmark
+            for mark in range(len(self._landmarks)):
+                # coordinates of the landmark
+                (landmarkX, landmarkY) = self._landmarks[mark]
+                # distance of the particle to the landmark
+                particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX)**2 + (self._particles[i][self.Y] - landmarkY)**2)
+                # set (distance of robot to landmark) in relation to (distance of particle to landmark)
+                distance = abs(robotDistance[mark] - particleDistance)
+                # multiply the distance to the weight
+                self._particles[i][self.WEIGHT] *= distance
+            # update the weight sum
+            weightSum += self._particles[i][self.WEIGHT]
+      #  print ("-----------------------------------------------")
+      #  for particle in (self._particles):
+      #      print ("sum : " , particle[self.SUM], "   weight : ", particle[self.WEIGHT], " coord : ", particle[self.X], "," , particle[self.Y])
+      #  print ("-----------------------------------------------")
+        #assert (1 == 2)
