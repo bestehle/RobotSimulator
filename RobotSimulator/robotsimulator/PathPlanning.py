@@ -39,7 +39,7 @@ class PathPlanning:
             # if the current vertex is the goal, we have reached the end
             if current == goal:
                 path = self._getPath(cameFrom, start, goal);
-                print("Cost of the route: " + str(cost[goal]))
+                #print("Cost of the route: " + str(cost[goal]))
                 break
 
             # visit each neighbor of the current vertex
