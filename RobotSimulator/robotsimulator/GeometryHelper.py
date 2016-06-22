@@ -17,3 +17,13 @@ def addDegree(a, b):
 
 def diffDegree(a, b):
     return ((a - b + math.pi) % (2 * math.pi)) - math.pi
+
+def pathDistance(path):
+    distance = 0
+    for i in range(len(path) -1):
+        (aX, aY) = path[i]
+        (bX, bY) = path[i + 1]
+        dx = aX - bX
+        dy = aY - bY
+        distance += math.sqrt(dx*dx+dy*dy)
+    return distance
