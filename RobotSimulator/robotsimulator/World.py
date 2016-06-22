@@ -139,8 +139,8 @@ class World:
             p = Point(poly[n][0], poly[n][1])
             c = Circle(p, 0.06)
             c.draw(self._win)
-            color = min(255, int(poly[n][3] * 200))
-            c.setFill(graphics.color_rgb(color, 255 - color, 0))
+            color = min(255, int(poly[n][3]) * 10)
+            c.setFill(graphics.color_rgb(255 - color, color, 0))
             self._drawnParticles.append(c)
 
     # --------

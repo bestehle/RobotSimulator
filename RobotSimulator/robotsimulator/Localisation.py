@@ -1,5 +1,5 @@
-from numpy import math
-from numpy import random
+
+from numpy import math, random
 from robotsimulator.graphics.graphics import Line, Point
 
 class Localisation:
@@ -14,6 +14,7 @@ class Localisation:
         self.WEIGHT = 3
         self.SUM = 4
         
+        self.PARTICLE_VARIANZ = 3
         self._drawWayOfParticle = True
         
         self._robot = robot
@@ -40,19 +41,19 @@ class Localisation:
     # while driving
     #
     def check(self):
-        self._world.drawParticles(self._particles)
         self._sampleMotionModel()
 #         self._measurementModelSensors()
         self._measurementModelLandMarks()
-        
-        # self._particles = self._resampling()
+        self._world.drawParticles(self._particles)
+        self._particles = self._resampling()
         
         
     def _generateParticles(self):
-        [xPos, yPos, _] = self._robot.getTrueRobotPose()
-        xValues = map(lambda x: (x - 0.5) * 3 + xPos, random.random(self._numberOfParticles))
-        yValues = map(lambda x: (x - 0.5) * 3 + yPos, random.random(self._numberOfParticles))
-        thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
+        [xPos, yPos, theta] = self._robot.getTrueRobotPose()
+        xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
+        yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
+#         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
+        thetaValues = random.laplace(theta, 1, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
@@ -73,7 +74,7 @@ class Localisation:
                     weight += 1 
                 else: 
                     weight += 0
-        return weight
+        return weight  #  1000 / (weight + 0.001) TODO
                 
         
         
@@ -118,26 +119,26 @@ class Localisation:
             else:
                 pulled[m] = 1
         
-        # print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
+#         print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
 
         return pulledParticles
     
     # --------
     # Add noisy sample motion of robot to all particles
     #
-    def _sampleMotionModel(self):
+    def _sampleMotionModel(self, noiseFaktor=300): # TODO
         for i in range(self._numberOfParticles):
             v = self._robot._currentV
             omega = self._robot._currentOmega
             
-            sigma_v_2 = (self._robot._k_d / self._robot._T) * abs(v)
-            v_noisy = v + random.uniform(0.0, math.sqrt(sigma_v_2))
+            sigma_v_2 = (self._robot._k_d * noiseFaktor / self._robot._T) * abs(v)
+            v_noisy = v + random.laplace(0.0, math.sqrt(sigma_v_2))
     
             # Add noise to omega:
-            sigma_omega_tr_2 = (self._robot._k_theta / self._robot._T) * abs(omega)  # turning rate noise
-            sigma_omega_drift_2 = (self._robot._k_drift / self._robot._T) * abs(v)  # drift noise
-            omega_noisy = omega + random.uniform(0.0, math.sqrt(sigma_omega_tr_2))
-            omega_noisy += random.uniform(0.0, math.sqrt(sigma_omega_drift_2))
+            sigma_omega_tr_2 = (self._robot._k_theta * noiseFaktor / self._robot._T) * abs(omega)  # turning rate noise
+            sigma_omega_drift_2 = (self._robot._k_drift * noiseFaktor / self._robot._T) * abs(v)  # drift noise
+            omega_noisy = omega + random.laplace(0.0, math.sqrt(sigma_omega_tr_2))
+            omega_noisy += random.laplace(0.0, math.sqrt(sigma_omega_drift_2))
             
             omega = omega_noisy
             v = v_noisy
@@ -209,6 +210,10 @@ class Localisation:
                 distance = abs(robotDistance[mark] - particleDistance)
                 # multiply the distance to the weight
                 self._particles[i][self.WEIGHT] *= distance
+                
+            # invert weight to get high value for a good particle
+            self._particles[i][self.WEIGHT] = 1 / self._particles[i][self.WEIGHT]
+            
             # update the weight sum
             weightSum += self._particles[i][self.WEIGHT]
       #  print ("-----------------------------------------------")

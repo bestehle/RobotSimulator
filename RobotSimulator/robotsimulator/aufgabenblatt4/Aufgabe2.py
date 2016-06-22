@@ -9,14 +9,18 @@ myRobot = Robot.Robot()
 
 myWorld.setRobot(myRobot, 6, 7, 0 * math.pi)
 
-localisation = Localisation(myRobot, myWorld, 10)
+localisation = Localisation(myRobot, myWorld, 50)
 localisation._grid.addSafetyDistance(myRobot, 0.1)
 localisation._grid.brushfire()
 
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
+localisation.addLandmark(1, 13)
+localisation.addLandmark(18, 1)
 myWorld.addBox(1, 1)
 myWorld.addBox(18, 13)
+myWorld.addBox(18, 1)
+myWorld.addBox(1, 13)
 
 myRobot.onMove(localisation.check)
 
