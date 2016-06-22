@@ -20,6 +20,15 @@ class Localisation:
         self._particles = self._generateParticles()
         self._landmarks = []
 
+    # --------
+    # return the coordinates (x, y) of the approximate position
+    #
+    def getPosition(self):
+        # TODO calculate position
+        (x, y, _) = self._world.getTrueRobotPose()
+        return (x, y)
+        
+
     def addLandmark(self, x, y):
         self._landmarks.append((x, y))
 
