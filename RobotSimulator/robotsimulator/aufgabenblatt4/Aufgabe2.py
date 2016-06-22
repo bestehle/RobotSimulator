@@ -9,7 +9,7 @@ myRobot = Robot.Robot()
 
 myWorld.setRobot(myRobot, 6, 7, 0 * math.pi)
 
-localisation = Localisation(myRobot, myWorld)
+localisation = Localisation(myRobot, myWorld, 10)
 localisation._grid.addSafetyDistance(myRobot, 0.1)
 localisation._grid.brushfire()
 

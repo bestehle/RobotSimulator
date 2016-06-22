@@ -1,5 +1,6 @@
 from numpy import math
 from numpy import random
+from robotsimulator.graphics.graphics import Line, Point
 
 class Localisation:
     # --------
@@ -12,6 +13,8 @@ class Localisation:
         self.THETA = 2
         self.WEIGHT = 3
         self.SUM = 4
+        
+        self._drawWayOfParticle = True
         
         self._robot = robot
         self._world = world
@@ -39,10 +42,10 @@ class Localisation:
     def check(self):
         self._world.drawParticles(self._particles)
         self._sampleMotionModel()
-        #self._measurementModelSensors()
+#         self._measurementModelSensors()
         self._measurementModelLandMarks()
         
-        #self._particles = self._resampling()
+        # self._particles = self._resampling()
         
         
     def _generateParticles(self):
@@ -115,12 +118,12 @@ class Localisation:
             else:
                 pulled[m] = 1
         
-        #print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
+        # print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
 
         return pulledParticles
     
     # --------
-    # Add random sample motion to all particles
+    # Add noisy sample motion of robot to all particles
     #
     def _sampleMotionModel(self):
         for i in range(self._numberOfParticles):
@@ -159,7 +162,13 @@ class Localisation:
             x = (x + d * math.cos(theta + 0.5 * dTheta))
             y = (y + d * math.sin(theta + 0.5 * dTheta))
             theta = (theta + dTheta) % (2 * math.pi)
-    
+            
+            if self._drawWayOfParticle == True:
+                pathLine = Line(Point(self._particles[i][self.X], self._particles[i][self.Y]), Point(x, y))
+                pathLine.setFill('green')
+                pathLine.setWidth(1)
+                pathLine.draw(self._world._win)
+        
             self._particles[i][self.X] = x
             self._particles[i][self.Y] = y
             self._particles[i][self.THETA] = theta
@@ -174,7 +183,7 @@ class Localisation:
         for i in range(len(self._particles)):
             self._particles[i][self.SUM] = weightSum
             weight = self.matchParticle(self._particles[i])
-            #print ("weight", weight)
+            # print ("weight", weight)
             weightSum += weight
             self._particles[i][self.WEIGHT] = weight
     
@@ -195,7 +204,7 @@ class Localisation:
                 # coordinates of the landmark
                 (landmarkX, landmarkY) = self._landmarks[mark]
                 # distance of the particle to the landmark
-                particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX)**2 + (self._particles[i][self.Y] - landmarkY)**2)
+                particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX) ** 2 + (self._particles[i][self.Y] - landmarkY) ** 2)
                 # set (distance of robot to landmark) in relation to (distance of particle to landmark)
                 distance = abs(robotDistance[mark] - particleDistance)
                 # multiply the distance to the weight
