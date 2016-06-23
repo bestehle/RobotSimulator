@@ -15,7 +15,7 @@ class Localisation:
         self.SUM = 4
         
         self.PARTICLE_VARIANZ = 3
-        self._drawWayOfParticle = True
+        self._drawWayOfParticle = False
         
         self._robot = robot
         self._world = world
@@ -42,8 +42,8 @@ class Localisation:
     #
     def check(self):
         self._sampleMotionModel()
-#         self._measurementModelSensors()
-        self._measurementModelLandMarks()
+        self._measurementModelSensors()
+#         self._measurementModelLandMarks()
         self._world.drawParticles(self._particles)
         self._particles = self._resampling()
         
@@ -53,7 +53,7 @@ class Localisation:
         xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
         yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
 #         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
-        thetaValues = random.laplace(theta, 1, self._numberOfParticles)
+        thetaValues = random.normal(theta, 1, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
@@ -126,19 +126,19 @@ class Localisation:
     # --------
     # Add noisy sample motion of robot to all particles
     #
-    def _sampleMotionModel(self, noiseFaktor=300): # TODO
+    def _sampleMotionModel(self, noiseFaktor=30, noiseReposition=0.05):  # TODO
         for i in range(self._numberOfParticles):
             v = self._robot._currentV
             omega = self._robot._currentOmega
             
             sigma_v_2 = (self._robot._k_d * noiseFaktor / self._robot._T) * abs(v)
-            v_noisy = v + random.laplace(0.0, math.sqrt(sigma_v_2))
+            v_noisy = v + random.normal(0.0, math.sqrt(sigma_v_2))
     
             # Add noise to omega:
             sigma_omega_tr_2 = (self._robot._k_theta * noiseFaktor / self._robot._T) * abs(omega)  # turning rate noise
             sigma_omega_drift_2 = (self._robot._k_drift * noiseFaktor / self._robot._T) * abs(v)  # drift noise
-            omega_noisy = omega + random.laplace(0.0, math.sqrt(sigma_omega_tr_2))
-            omega_noisy += random.laplace(0.0, math.sqrt(sigma_omega_drift_2))
+            omega_noisy = omega + random.normal(0.0, math.sqrt(sigma_omega_tr_2))
+            omega_noisy += random.normal(0.0, math.sqrt(sigma_omega_drift_2))
             
             omega = omega_noisy
             v = v_noisy
@@ -170,9 +170,9 @@ class Localisation:
                 pathLine.setWidth(1)
                 pathLine.draw(self._world._win)
         
-            self._particles[i][self.X] = x
-            self._particles[i][self.Y] = y
-            self._particles[i][self.THETA] = theta
+            self._particles[i][self.X] = x + random.normal(0.0, noiseReposition)
+            self._particles[i][self.Y] = y + random.normal(0.0, noiseReposition)
+            self._particles[i][self.THETA] = theta + random.normal(0.0, noiseReposition * 2)
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
         
@@ -220,4 +220,4 @@ class Localisation:
       #  for particle in (self._particles):
       #      print ("sum : " , particle[self.SUM], "   weight : ", particle[self.WEIGHT], " coord : ", particle[self.X], "," , particle[self.Y])
       #  print ("-----------------------------------------------")
-        #assert (1 == 2)
+        # assert (1 == 2)
