@@ -107,6 +107,9 @@ class World:
         
         # Drawn Particles:
         self._drawnParticles = []
+        
+        # approximate position of the robot
+        self._approximatePosition = None
 
     # --------
     # Draw a polyline.
@@ -131,7 +134,7 @@ class World:
         self._drawnPolyline = []
         
     # --------
-    # Draw a polyline.
+    # Draw particles.
     #
     def drawParticles(self, poly, color='black'):
         self.undrawParticles()
@@ -142,6 +145,18 @@ class World:
             color = min(255, int(poly[n][3]) * 10)
             c.setFill(graphics.color_rgb(255 - color, color, 0))
             self._drawnParticles.append(c)
+
+    # --------
+    # Draw postion (x, y, theta)
+    #        
+    def drawApproximatePosition(self, position):
+        (x, y, _) = position
+        if (self._approximatePosition):
+            self._approximatePosition.undraw()
+        p = Point(x, y)
+        self._approximatePosition = Circle(p, 0.1)
+        self._approximatePosition.draw(self._win)
+        self._approximatePosition.setFill('yellow')
 
     # --------
     # Undraw the polyline.

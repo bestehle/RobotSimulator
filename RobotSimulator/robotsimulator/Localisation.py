@@ -1,12 +1,13 @@
 
 from numpy import math, random
 from robotsimulator.graphics.graphics import Line, Point
+from statistics import median
 
 class Localisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world, numberOfParticles=200):
+    def __init__(self, robot, world, numberOfParticles=150):
         # const
         self.X = 0
         self.Y = 1
@@ -16,21 +17,20 @@ class Localisation:
         
         self.PARTICLE_VARIANZ = 3
         self._drawWayOfParticle = False
-        
+    
         self._robot = robot
         self._world = world
+        self._position = self._robot.getTrueRobotPose()
         self._grid = self._world.getOccupancyGrid()
         self._numberOfParticles = numberOfParticles
         self._particles = self._generateParticles()
         self._landmarks = []
 
     # --------
-    # return the coordinates (x, y) of the approximate position
+    # return the coordinates (x, y, theta) of the approximate position
     #
     def getPosition(self):
-        # TODO calculate position
-        (x, y, _) = self._world.getTrueRobotPose()
-        return (x, y)
+        return self._position
         
 
     def addLandmark(self, x, y):
@@ -42,14 +42,20 @@ class Localisation:
     #
     def check(self):
         self._sampleMotionModel()
-        self._measurementModelSensors()
-#         self._measurementModelLandMarks()
+#        self._measurementModelSensors()
+        self._measurementModelLandMarks()
         self._world.drawParticles(self._particles)
         self._particles = self._resampling()
+        # calculate the approximate position
+        x = median(map(lambda l : l[self.X], self._particles))
+        y = median(map(lambda l : l[self.Y], self._particles))
+        theta = median(map(lambda l : l[self.THETA], self._particles))
+        self._position = (x, y, theta)
+        self._world.drawApproximatePosition(self._position)
         
         
     def _generateParticles(self):
-        [xPos, yPos, theta] = self._robot.getTrueRobotPose()
+        [xPos, yPos, theta] = self._position
         xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
         yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
 #         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))

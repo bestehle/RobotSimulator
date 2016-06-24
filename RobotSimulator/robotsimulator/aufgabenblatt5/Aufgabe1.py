@@ -14,7 +14,7 @@ myWorld = World(20, 20)
 myRobot = Robot.Robot()
 myWorld = officeWorld.buildWorld()
 
-myWorld.setRobot(myRobot, 2, 7, 0 * math.pi)
+myWorld.setRobot(myRobot, 6, 7, 0 * math.pi)
 start = (2, 7)
 goal = (15, 6)
 
@@ -23,6 +23,10 @@ pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
 localisation = Localisation(myRobot, myWorld)
+localisation.addLandmark(1, 1)
+localisation.addLandmark(18, 13)
+#localisation.addLandmark(1, 13)
+#localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
 
