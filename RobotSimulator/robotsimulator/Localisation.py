@@ -138,7 +138,7 @@ class Localisation:
             omega = self._robot._currentOmega
             
             sigma_v_2 = (self._robot._k_d * noiseFaktor / self._robot._T) * abs(v)
-            v_noisy = v + random.normal(0.0, math.sqrt(sigma_v_2))
+            v_noisy = v + random.normal(0.05, math.sqrt(sigma_v_2))
     
             # Add noise to omega:
             sigma_omega_tr_2 = (self._robot._k_theta * noiseFaktor / self._robot._T) * abs(omega)  # turning rate noise

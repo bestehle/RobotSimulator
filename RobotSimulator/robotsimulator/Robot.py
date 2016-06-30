@@ -124,7 +124,7 @@ class Robot:
         if v < -self._maxSpeed:
             v = -self._maxSpeed
 
-        #print ("motion ", v, omega * 180 / math.pi)
+        # print ("motion ", v, omega * 180 / math.pi)
 
         # Odometry pose update (based on the motion command):
         d = v * self._T
@@ -250,7 +250,7 @@ class Robot:
             self.move([v, delta_theta])
             
             
-    def gotoWithObstacle(self, v, p, tol, sensorsToUse, distanceTol):
+    def gotoWithObstacle(self, v, p, tol, sensorsToUse, distanceTol, minSpeed=0.2):
         while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
@@ -259,7 +259,7 @@ class Robot:
                 return True
             if self.obstacleInWay(sensorsToUse, distanceTol):
                 return False
-            self.move([v, delta_theta])
+            self.move([ v * max(minSpeed, (1 - abs(delta_theta * 2) / math.pi)), delta_theta])
         
     def followPolylineTurnFirst(self, v, poly, tol=1):
         for p in poly:
@@ -273,7 +273,7 @@ class Robot:
         i = 0
         for p in poly:
             i += 1
-            #print("Polyline : ", i)
+            # print("Polyline : ", i)
             while True:
                 if not self.gotoWithObstacle(v, p, tol, sensorsToUse, distance):
                     self.avoidObstacle(v, sensorsToUse, distance)
@@ -285,7 +285,7 @@ class Robot:
         left, right, front = self.getWeightedSensorData(sensorsToUse, distance)
         return left != 0 or right != 0 or front != 0
     
-    def avoidObstacle(self, v, sensorsToUse=3, distance=5):
+    def avoidObstacle(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
@@ -293,7 +293,7 @@ class Robot:
             left, right, front = self.getWeightedSensorData(sensorsToUse, distance)  
             
             if self.isInDeadEnd(distance, scale, left, right, front):
-                self.move([0, -self._maxOmega])
+                self.move([minSpeed, -self._maxOmega])
                 continue
             
             if right > left:
@@ -305,7 +305,7 @@ class Robot:
             # print(left, right, front, scaledAngle)
             
             if angle != 0:
-                self.move([v * (1 - abs(scaledAngle) / math.pi), scaledAngle])
+                self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle])
             else:
                 return
 
@@ -399,7 +399,7 @@ class Robot:
         ret = []
         (posX, posY, _) = self.getTrueRobotPose()
         for (landX, landY) in landmarks:
-            distance = math.sqrt((landX - posX)**2 + (landY - posY)**2)
+            distance = math.sqrt((landX - posX) ** 2 + (landY - posY) ** 2)
             distance += random.gauss(0, self._sensorNoise)
             ret.append(distance)
         return ret
