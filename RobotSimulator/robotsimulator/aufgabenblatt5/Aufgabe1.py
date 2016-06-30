@@ -27,7 +27,7 @@ localisation.addLandmark(1, 13)
 #localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
-myRobot.useApproximatePosition(localisation.getPosition)
+#myRobot.useApproximatePosition(localisation.getPosition)
 
 rooms = myWorld.getRooms()
 print (rooms)
@@ -61,6 +61,6 @@ while (len(rooms) > 0):
         polyline.append(Point(x, y))
     myWorld.drawPolyline(polyline, color='green')
 
-    myRobot.followPolylineWithObstacle(0.2, polyline, 6, 0.8, 0.5)
+    myRobot.followPolylineWithObstacle(0.6, polyline, 6, 0.8, 0.5)
 
 myWorld.close()

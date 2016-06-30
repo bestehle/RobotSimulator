@@ -7,7 +7,7 @@ class Localisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world, numberOfParticles=80):
+    def __init__(self, robot, world, numberOfParticles=500):
         # const
         self.X = 0
         self.Y = 1
