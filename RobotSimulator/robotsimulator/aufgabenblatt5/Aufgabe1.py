@@ -7,7 +7,7 @@ from robotsimulator import GeometryHelper
 from robotsimulator.Localisation import Localisation
 from robotsimulator.World import World
 from robotsimulator.graphics.graphics import Point
-from robotsimulator.worlds import officeWorld
+from robotsimulator.worlds import officeWorldWithDynObstacles as officeWorld
 
 
 myWorld = World(20, 20)
@@ -37,7 +37,8 @@ while (len(rooms) > 0):
     maxDistance = maxsize
     # get the distance to each room
     for (room, x, y) in rooms:
-        start = localisation.getPosition()
+        (posX, posY, _) = localisation.getPosition()
+        start = (posX, posY)
         goal = (x, y)
         #print ("check the distance from " , start , " to ", goal)
         path = pathPlanning.shortestPath(start, goal)
