@@ -376,6 +376,14 @@ class Robot:
 
 
     # --------
+    # rotate the robot with the given delta
+    #     
+    def rotate(self, delta):
+        (_, _, theta) = self.getTrueRobotPose();
+        self._world.moveRobot(0, delta, self._T);
+        self._odoTheta = theta + delta;
+
+    # --------
     # sense and returns distance measurements for each sensor beam.
     # If a sensor beams senses no obstacle distance value is set to None.
     #
@@ -401,6 +409,14 @@ class Robot:
             return None
         else:
             return distAngles
+
+    # --------
+    # Use senseBoxes() to check for near boxes.
+    #
+    def findBoxes(self):
+        print ("find boxes")
+        boxes = self.senseBoxes()
+        print (boxes)
 
     # --------
     # Sense Landmarks
