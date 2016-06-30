@@ -20,10 +20,16 @@ def diffDegree(a, b):
 
 def pathDistance(path):
     distance = 0
-    for i in range(len(path) -1):
+    for i in range(len(path) - 1):
         (aX, aY) = path[i]
         (bX, bY) = path[i + 1]
         dx = aX - bX
         dy = aY - bY
-        distance += math.sqrt(dx*dx+dy*dy)
+        distance += math.sqrt(dx * dx + dy * dy)
     return distance
+
+def calculatePosition(direction, distance, position):
+    absDirection = position[2] + direction
+    x = math.cos(absDirection) * distance
+    y = math.sin(absDirection) * distance
+    return (position[0] + x, position[1] + y)

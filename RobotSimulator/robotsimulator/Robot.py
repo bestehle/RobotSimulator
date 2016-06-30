@@ -24,6 +24,9 @@ class Robot:
         self.FRONT = 10
         self.BOXES_DISTANCES = 0
         self.BOXES_ANGLES = 1
+        
+        self.approximateBoxPositions = []
+        self.trueBoxPositions = []
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -416,13 +419,15 @@ class Robot:
     def findBoxes(self):
         print ("find boxes")
         # boxes in front
-        self._findBoxes()
-        # rotate 360�
-        for _ in range(4):
-            self._findBoxes()
-            self.rotate(math.pi / 2)
+        self._findBoxes(0, 0)
+        self.rotate(math.radians(130))
+        self._findBoxes(10, 0)
+        self.rotate(math.radians(130))
+        self._findBoxes(10, 30)
         
-    def _findBoxes(self):
+    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree):
+        ignoreRight = math.radians(ignoreRightDegree)
+        ignoreLeft = math.radians(ignoreLeftDegree)
         boxes = self.senseBoxes()
         # no boxes found
         if (None == boxes):
@@ -430,8 +435,14 @@ class Robot:
         # check all found boxes
         for i in range(0, len(boxes[self.BOXES_DISTANCES])):
             # distance/angle to the found box
-            distance = boxes[self.BOXES_DISTANCES][i]
             angle = boxes[self.BOXES_ANGLES][i]
+            distance = boxes[self.BOXES_DISTANCES][i]
+            
+            halfSensorAngle = self._world._boxSensorAngle / 2;
+            if angle > -halfSensorAngle + ignoreLeft and angle < halfSensorAngle - ignoreRight:
+                self.approximateBoxPositions += GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
+                self.trueBoxPositions += GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
+                
 
     # --------
     # Sense Landmarks

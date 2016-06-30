@@ -27,9 +27,9 @@ class Localisation:
         
         self.PARTICLE_VARIANZ = 1
         self._drawWayOfParticle = False
-        self._drawParticles = False
+        self._drawParticles = True
         self._drawWayOfLocalisation = True
-        self._drawWayOfLocalisation = True
+        self._printFault = True
     
         self._robot = robot
         self._world = world
@@ -55,8 +55,8 @@ class Localisation:
     #
     def check(self):
         self._sampleMotionModel()
-#        self._measurementModelSensors()
-        self._measurementModelLandMarks()
+        self._measurementModelSensors()
+#         self._measurementModelLandMarks()
         if self._drawParticles:
             self._world.drawParticles(self._particles)
         self._particles = self._resampling()
@@ -67,21 +67,21 @@ class Localisation:
         if self._drawWayOfLocalisation:
                 pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
                 color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
-                pathLine.setFill(graphics.color_rgb(255 - color, color, 0))
+                pathLine.setFill(graphics.color_rgb(color, 255 - color, 0))
                 pathLine.setWidth(2)
                 pathLine.draw(self._world._win)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
-        if self._drawWayOfLocalisation:
+        if self._printFault:
             self.printLocalistationFault()
-        #self._position = self._robot.getTrueRobotPose()
+        # self._position = self._robot.getTrueRobotPose()
         
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
         xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
         yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
 #         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
-        thetaValues = random.normal(theta, 1, self._numberOfParticles)
+        thetaValues = random.normal(theta, 0.2, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
@@ -163,8 +163,8 @@ class Localisation:
             v_noisy = v + random.normal(0.05, math.sqrt(sigma_v_2))
     
             # Add noise to omega:
-            sigma_omega_tr_2 = (self._robot._k_theta * noiseFaktor / self._robot._T) * abs(omega)  # turning rate noise
-            sigma_omega_drift_2 = (self._robot._k_drift * noiseFaktor / self._robot._T) * abs(v)  # drift noise
+            sigma_omega_tr_2 = (self._robot._k_theta / self._robot._T) * abs(omega)  # turning rate noise
+            sigma_omega_drift_2 = (self._robot._k_drift / self._robot._T) * abs(v)  # drift noise
             omega_noisy = omega + random.normal(0.0, math.sqrt(sigma_omega_tr_2))
             omega_noisy += random.normal(0.0, math.sqrt(sigma_omega_drift_2))
             
