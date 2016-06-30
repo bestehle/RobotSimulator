@@ -425,7 +425,7 @@ class Robot:
     #
     def senseLandmarks(self, landmarks):
         ret = []
-        (posX, posY, _) = self.getTrueRobotPose()
+        (posX, posY, _) = self._world.getTrueRobotPose()
         for (landX, landY) in landmarks:
             distance = math.sqrt((landX - posX) ** 2 + (landY - posY) ** 2)
             distance += random.gauss(0, self._sensorNoise)

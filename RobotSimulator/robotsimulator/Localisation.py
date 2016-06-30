@@ -1,7 +1,10 @@
 
-from numpy import math, random
-from robotsimulator.graphics.graphics import Line, Point
 from statistics import median
+
+from numpy import math, random
+
+from robotsimulator.graphics.graphics import Line, Point
+
 
 class Localisation:
     # --------
@@ -52,6 +55,9 @@ class Localisation:
         theta = median(map(lambda l : l[self.THETA], self._particles))
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
+        print(abs(round(self._position[0] - self._world.getTrueRobotPose()[0], 3)), "\t",
+              abs(round(self._position[1] - self._world.getTrueRobotPose()[1], 3)), "\t",
+              abs(round(self._position[2] - self._world.getTrueRobotPose()[2], 3)))
         self._position = self._robot.getTrueRobotPose()
         
     def _generateParticles(self):
