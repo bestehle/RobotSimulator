@@ -3,6 +3,7 @@ from statistics import median
 
 from numpy import math, random
 
+from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
 
 
@@ -20,6 +21,7 @@ class Localisation:
         
         self.PARTICLE_VARIANZ = 3
         self._drawWayOfParticle = False
+        self._drawWayOfLocalisation = True
     
         self._robot = robot
         self._world = world
@@ -53,6 +55,12 @@ class Localisation:
         x = median(map(lambda l : l[self.X], self._particles))
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
+        if self._drawWayOfLocalisation == True:
+                pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
+                color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
+                pathLine.setFill(graphics.color_rgb(255 - color, color, 0))
+                pathLine.setWidth(2)
+                pathLine.draw(self._world._win)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
         print(abs(round(self._position[0] - self._world.getTrueRobotPose()[0], 3)), "\t",
