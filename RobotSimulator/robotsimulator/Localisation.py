@@ -19,8 +19,9 @@ class Localisation:
         self.WEIGHT = 3
         self.SUM = 4
         
-        self.PARTICLE_VARIANZ = 3
+        self.PARTICLE_VARIANZ = 1
         self._drawWayOfParticle = False
+        self._drawParticles = False
         self._drawWayOfLocalisation = True
     
         self._robot = robot
@@ -49,7 +50,8 @@ class Localisation:
         self._sampleMotionModel()
 #        self._measurementModelSensors()
         self._measurementModelLandMarks()
-        self._world.drawParticles(self._particles)
+        if self._drawParticles == True:
+            self._world.drawParticles(self._particles)
         self._particles = self._resampling()
         # calculate the approximate position
         x = median(map(lambda l : l[self.X], self._particles))
@@ -192,7 +194,7 @@ class Localisation:
         
             self._particles[i][self.X] = x + random.normal(0.0, noiseReposition)
             self._particles[i][self.Y] = y + random.normal(0.0, noiseReposition)
-            self._particles[i][self.THETA] = theta + random.normal(0.0, noiseReposition * 2)
+            self._particles[i][self.THETA] = theta  # + random.normal(0.0, noiseReposition * 2)
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
         
