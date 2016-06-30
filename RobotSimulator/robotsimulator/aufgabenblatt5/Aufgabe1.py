@@ -63,5 +63,7 @@ while (len(rooms) > 0):
     myWorld.drawPolyline(polyline, color='green')
 
     myRobot.followPolylineWithObstacle(0.6, polyline, 9, 0.8, 0.5)
+    
+    myRobot.findBoxes()
 
 myWorld.close()
