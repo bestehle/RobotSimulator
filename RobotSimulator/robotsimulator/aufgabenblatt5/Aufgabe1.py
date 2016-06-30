@@ -14,7 +14,7 @@ myWorld = World(20, 20)
 myRobot = Robot.Robot()
 myWorld = officeWorld.buildWorld()
 
-myWorld.setRobot(myRobot, 6, 7, 0 * math.pi)
+myWorld.setRobot(myRobot, 2, 7, 0 * math.pi)
 start = (2, 7)
 goal = (15, 6)
 
@@ -25,7 +25,7 @@ pathPlanning._grid.brushfire()
 localisation = Localisation(myRobot, myWorld)
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
-#localisation.addLandmark(1, 13)
+localisation.addLandmark(1, 13)
 #localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
@@ -42,6 +42,7 @@ while (len(rooms) > 0):
         goal = (x, y)
         #print ("check the distance from " , start , " to ", goal)
         path = pathPlanning.shortestPath(start, goal)
+        if (None == path): continue;
         path = pathPlanning.rdp(path, 0.1)
         distance = GeometryHelper.pathDistance(path)
         # check if distance to this room is next
@@ -60,6 +61,6 @@ while (len(rooms) > 0):
         polyline.append(Point(x, y))
     myWorld.drawPolyline(polyline, color='green')
 
-    myRobot.followPolylineWithObstacle(0.2, polyline, 6, 0.1, 0.5)
+    myRobot.followPolylineWithObstacle(0.2, polyline, 6, 0.8, 0.5)
 
 myWorld.close()
