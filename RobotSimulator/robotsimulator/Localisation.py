@@ -68,7 +68,7 @@ class Localisation:
         print(abs(round(self._position[0] - self._world.getTrueRobotPose()[0], 3)), "\t",
               abs(round(self._position[1] - self._world.getTrueRobotPose()[1], 3)), "\t",
               abs(round(self._position[2] - self._world.getTrueRobotPose()[2], 3)))
-        self._position = self._robot.getTrueRobotPose()
+        #self._position = self._robot.getTrueRobotPose()
         
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
