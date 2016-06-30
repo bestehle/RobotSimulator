@@ -7,7 +7,7 @@ class Localisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world, numberOfParticles=150):
+    def __init__(self, robot, world, numberOfParticles=80):
         # const
         self.X = 0
         self.Y = 1
@@ -52,7 +52,7 @@ class Localisation:
         theta = median(map(lambda l : l[self.THETA], self._particles))
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
-        
+        self._position = self._robot.getTrueRobotPose()
         
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
@@ -222,8 +222,3 @@ class Localisation:
             
             # update the weight sum
             weightSum += self._particles[i][self.WEIGHT]
-      #  print ("-----------------------------------------------")
-      #  for particle in (self._particles):
-      #      print ("sum : " , particle[self.SUM], "   weight : ", particle[self.WEIGHT], " coord : ", particle[self.X], "," , particle[self.Y])
-      #  print ("-----------------------------------------------")
-        # assert (1 == 2)

@@ -14,8 +14,8 @@ myWorld = World(20, 20)
 myRobot = Robot.Robot()
 myWorld = officeWorld.buildWorld()
 
-myWorld.setRobot(myRobot, 2, 7, 0 * math.pi)
-start = (2, 7)
+myWorld.setRobot(myRobot, 11, 11.5, 1 * math.pi)
+start = (11, 11.5)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
@@ -37,6 +37,7 @@ while (len(rooms) > 0):
     maxDistance = maxsize
     # get the distance to each room
     for (room, x, y) in rooms:
+        print (room)
         (posX, posY, _) = localisation.getPosition()
         start = (posX, posY)
         goal = (x, y)
@@ -46,7 +47,7 @@ while (len(rooms) > 0):
         path = pathPlanning.rdp(path, 0.1)
         distance = GeometryHelper.pathDistance(path)
         # check if distance to this room is next
-        if (distance < maxDistance):
+        if (room == "Room 03"):
             maxDistance = distance
             nextRoom = [room, x, y]
             nextPath = path
