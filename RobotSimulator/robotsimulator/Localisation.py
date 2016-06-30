@@ -3,6 +3,7 @@ from statistics import median
 
 from numpy import math, random
 
+from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
 
 
@@ -18,8 +19,10 @@ class Localisation:
         self.WEIGHT = 3
         self.SUM = 4
         
-        self.PARTICLE_VARIANZ = 3
+        self.PARTICLE_VARIANZ = 1
         self._drawWayOfParticle = False
+        self._drawParticles = False
+        self._drawWayOfLocalisation = True
     
         self._robot = robot
         self._world = world
@@ -47,12 +50,19 @@ class Localisation:
         self._sampleMotionModel()
 #        self._measurementModelSensors()
         self._measurementModelLandMarks()
-        self._world.drawParticles(self._particles)
+        if self._drawParticles == True:
+            self._world.drawParticles(self._particles)
         self._particles = self._resampling()
         # calculate the approximate position
         x = median(map(lambda l : l[self.X], self._particles))
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
+        if self._drawWayOfLocalisation == True:
+                pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
+                color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
+                pathLine.setFill(graphics.color_rgb(255 - color, color, 0))
+                pathLine.setWidth(2)
+                pathLine.draw(self._world._win)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
         print(abs(round(self._position[0] - self._world.getTrueRobotPose()[0], 3)), "\t",
@@ -184,7 +194,7 @@ class Localisation:
         
             self._particles[i][self.X] = x + random.normal(0.0, noiseReposition)
             self._particles[i][self.Y] = y + random.normal(0.0, noiseReposition)
-            self._particles[i][self.THETA] = theta + random.normal(0.0, noiseReposition * 2)
+            self._particles[i][self.THETA] = theta  # + random.normal(0.0, noiseReposition * 2)
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
         

@@ -1,10 +1,11 @@
+from sys import maxsize
+
 from numpy import math
 
-from sys import maxsize
-from robotsimulator import Robot
-from robotsimulator.PathPlanning import PathPlanning
 from robotsimulator import GeometryHelper
+from robotsimulator import Robot
 from robotsimulator.Localisation import Localisation
+from robotsimulator.PathPlanning import PathPlanning
 from robotsimulator.World import World
 from robotsimulator.graphics.graphics import Point
 from robotsimulator.worlds import officeWorldWithDynObstacles as officeWorld
@@ -24,7 +25,7 @@ localisation = Localisation(myRobot, myWorld)
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
-#localisation.addLandmark(18, 1)
+# localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
 myRobot.useApproximatePosition(localisation.getPosition)
@@ -40,7 +41,7 @@ while (len(rooms) > 0):
         (posX, posY, _) = localisation.getPosition()
         start = (posX, posY)
         goal = (x, y)
-        #print ("check the distance from " , start , " to ", goal)
+        # print ("check the distance from " , start , " to ", goal)
         path = pathPlanning.shortestPath(start, goal)
         if (None == path): continue;
         path = pathPlanning.rdp(path, 0.1)
@@ -61,8 +62,6 @@ while (len(rooms) > 0):
         polyline.append(Point(x, y))
     myWorld.drawPolyline(polyline, color='green')
 
-    myRobot.followPolylineWithObstacle(0.6, polyline, 6, 0.8, 0.5)
-    
-    myRobot.findBoxes()
+    myRobot.followPolylineWithObstacle(0.6, polyline, 9, 0.8, 0.5)
 
 myWorld.close()
