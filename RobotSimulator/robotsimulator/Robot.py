@@ -22,6 +22,8 @@ class Robot:
         self._T = 0.1  # time step
         self._world = None  # robot's world; is set by setWorld()
         self.FRONT = 10
+        self.BOXES_DISTANCES = 0
+        self.BOXES_ANGLES = 1
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -379,9 +381,8 @@ class Robot:
     # rotate the robot with the given delta
     #     
     def rotate(self, delta):
-        (_, _, theta) = self.getTrueRobotPose();
-        self._world.moveRobot(0, delta, self._T);
-        self._odoTheta = theta + delta;
+        motion = (0.1, delta)
+        self.move(motion)
 
     # --------
     # sense and returns distance measurements for each sensor beam.
@@ -415,8 +416,23 @@ class Robot:
     #
     def findBoxes(self):
         print ("find boxes")
+        # boxes in front
+        self._findBoxes()
+        # rotate 360°
+        for _ in range(4):
+            self._findBoxes()
+            self.rotate(math.pi / 2)
+        
+    def _findBoxes(self):
         boxes = self.senseBoxes()
-        print (boxes)
+        # no boxes found
+        if (None == boxes):
+            return False
+        # check all found boxes
+        for i in range(0, len(boxes[self.BOXES_DISTANCES])):
+            # distance/angle to the found box
+            distance = boxes[self.BOXES_DISTANCES][i]
+            angle = boxes[self.BOXES_ANGLES][i]
 
     # --------
     # Sense Landmarks

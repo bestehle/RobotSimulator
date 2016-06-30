@@ -27,7 +27,7 @@ localisation.addLandmark(1, 13)
 #localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
-#myRobot.useApproximatePosition(localisation.getPosition)
+myRobot.useApproximatePosition(localisation.getPosition)
 
 rooms = myWorld.getRooms()
 print (rooms)
