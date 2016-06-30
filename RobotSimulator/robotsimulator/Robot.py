@@ -381,7 +381,7 @@ class Robot:
     # rotate the robot with the given delta
     #     
     def rotate(self, delta):
-        self.curveDrive(self, 0, 0, delta)
+        self.curveDrive(0, 0, delta)
 
     # --------
     # sense and returns distance measurements for each sensor beam.
