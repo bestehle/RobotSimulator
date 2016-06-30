@@ -3,6 +3,7 @@ from statistics import median
 
 from numpy import math, random
 
+from robotsimulator import GeometryHelper
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
 
@@ -19,9 +20,15 @@ class Localisation:
         self.WEIGHT = 3
         self.SUM = 4
         
+        self.xFault = 0
+        self.yFault = 0
+        self.thetaFault = 0
+        self.FaultCount = 0
+        
         self.PARTICLE_VARIANZ = 1
         self._drawWayOfParticle = False
         self._drawParticles = False
+        self._drawWayOfLocalisation = True
         self._drawWayOfLocalisation = True
     
         self._robot = robot
@@ -50,14 +57,14 @@ class Localisation:
         self._sampleMotionModel()
 #        self._measurementModelSensors()
         self._measurementModelLandMarks()
-        if self._drawParticles == True:
+        if self._drawParticles:
             self._world.drawParticles(self._particles)
         self._particles = self._resampling()
         # calculate the approximate position
         x = median(map(lambda l : l[self.X], self._particles))
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
-        if self._drawWayOfLocalisation == True:
+        if self._drawWayOfLocalisation:
                 pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
                 color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
                 pathLine.setFill(graphics.color_rgb(255 - color, color, 0))
@@ -65,9 +72,8 @@ class Localisation:
                 pathLine.draw(self._world._win)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
-        print(abs(round(self._position[0] - self._world.getTrueRobotPose()[0], 3)), "\t",
-              abs(round(self._position[1] - self._world.getTrueRobotPose()[1], 3)), "\t",
-              abs(round(self._position[2] - self._world.getTrueRobotPose()[2], 3)))
+        if self._drawWayOfLocalisation:
+            self.printLocalistationFault()
         #self._position = self._robot.getTrueRobotPose()
         
     def _generateParticles(self):
@@ -150,7 +156,7 @@ class Localisation:
     #
     def _sampleMotionModel(self, noiseFaktor=30, noiseReposition=0.05):  # TODO
         for i in range(self._numberOfParticles):
-            v = self._robot._currentV
+            v = max(self._robot._currentV, 0.01)
             omega = self._robot._currentOmega
             
             sigma_v_2 = (self._robot._k_d * noiseFaktor / self._robot._T) * abs(v)
@@ -238,3 +244,15 @@ class Localisation:
             
             # update the weight sum
             weightSum += self._particles[i][self.WEIGHT]
+
+
+    def printLocalistationFault(self):
+        currentXFault = abs(round(self._position[self.X] - self._world.getTrueRobotPose()[self.X], 3))
+        currentYFault = abs(round(self._position[self.Y] - self._world.getTrueRobotPose()[self.Y], 3))
+        currentThetaFault = abs(round(GeometryHelper.diffDegree(self._position[self.THETA], self._world.getTrueRobotPose()[self.THETA]), 3))
+        self.xFault = abs(round((self.xFault * self.FaultCount + currentXFault) / (self.FaultCount + 1), 3))
+        self.yFault = abs(round((self.yFault * self.FaultCount + currentYFault) / (self.FaultCount + 1), 3))
+        self.thetaFault = abs(round((self.thetaFault * self.FaultCount + currentThetaFault) / (self.FaultCount + 1), 3))
+        self.FaultCount += 1
+        print(currentXFault, "\t", currentYFault, "\t", currentThetaFault, "\t",
+                     self.xFault, "\t", self.yFault, "\t", self.thetaFault, "\t", self.FaultCount)
