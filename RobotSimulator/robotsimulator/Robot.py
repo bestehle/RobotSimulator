@@ -46,6 +46,9 @@ class Robot:
         # initialize event emitter which will be called after each move cycle.
         self._moveListener = EventEmitter()
         
+        # method to be called if we use approximate position
+        self._approximatePosition = None
+        
     def activateMotionNoise(self):
         self._motionNoise = True
 
@@ -95,7 +98,16 @@ class Robot:
     # get the true robot pose (x,y,theta).
     #
     def getTrueRobotPose(self):
-        return self._world.getTrueRobotPose()
+        if (self._approximatePosition):
+            return self._approximatePosition()
+        else:
+            return self._world.getTrueRobotPose()
+
+    # --------
+    # Add a method to be called to ask for the position of the robot.
+    #
+    def useApproximatePosition(self, method):
+        self._approximatePosition = method
 
     # --------
     # add a move listener
