@@ -31,13 +31,12 @@ myRobot.onMove(localisation.check)
 myRobot.useApproximatePosition(localisation.getPosition)
 
 rooms = myWorld.getRooms()
-print (rooms)
+
 # visit all rooms
 while (len(rooms) > 0):
     maxDistance = maxsize
     # get the distance to each room
     for (room, x, y) in rooms:
-        print (room)
         (posX, posY, _) = localisation.getPosition()
         start = (posX, posY)
         goal = (x, y)
@@ -65,8 +64,5 @@ while (len(rooms) > 0):
     myRobot.followPolylineWithObstacle(1, polyline, 9, 0.6, 0.5)
     
     myRobot.findBoxes()
-
-print(myRobot.approximateBoxPositions)
-print(myRobot.trueBoxPositions)
 
 myWorld.close()

@@ -69,7 +69,6 @@ def buildWorld():
     world.addBox( 3.2,  5.8)
     world.addBox( 3.4, 10.7)
     world.addBox( 5.1,  3.3)
-    world.addBox( 5.4,  3.3) #remove after test
     world.addBox( 6.5, 10.6)
     world.addBox( 7.2,  3.3)
     world.addBox(10.8,  5.8)

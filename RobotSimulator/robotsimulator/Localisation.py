@@ -6,6 +6,7 @@ from numpy import math, random
 from robotsimulator import GeometryHelper
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
+from robotsimulator import Stats
 
 
 class Localisation:
@@ -30,6 +31,7 @@ class Localisation:
         self._drawParticles = True
         self._drawWayOfLocalisation = True
         self._printFault = True
+        self._printPosition = True
     
         self._robot = robot
         self._world = world
@@ -55,8 +57,8 @@ class Localisation:
     #
     def check(self):
         self._sampleMotionModel()
-        self._measurementModelSensors()
-#         self._measurementModelLandMarks()
+#        self._measurementModelSensors()
+        self._measurementModelLandMarks()
         if self._drawParticles:
             self._world.drawParticles(self._particles)
         self._particles = self._resampling()
@@ -74,7 +76,8 @@ class Localisation:
         self._world.drawApproximatePosition(self._position)
         if self._printFault:
             self.printLocalistationFault()
-        # self._position = self._robot.getTrueRobotPose()
+        if self._printPosition:
+            self.printPosition()
         
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
@@ -82,6 +85,8 @@ class Localisation:
         yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
 #         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
         thetaValues = random.normal(theta, 0.2, self._numberOfParticles)
+        #xValues = random.normal(xPos, 0.2, self._numberOfParticles)
+        #yValues = random.normal(yPos, 0.2, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
@@ -246,6 +251,19 @@ class Localisation:
             weightSum += self._particles[i][self.WEIGHT]
 
 
+    def printPosition(self):
+        truePos = self._world.getTrueRobotPose()
+        approX = round(self._position[self.X], 3)
+        approY = round(self._position[self.Y], 3)
+        approTheta = round(self._position[self.THETA], 3)
+        truePosX = round(truePos[self.X], 3)
+        truePosY = round(truePos[self.Y], 3)
+        truePosTheta = round(truePos[self.THETA], 3)
+        
+        
+        Stats.robotPositions(approX, '\t', approY, '\t', approTheta, '\t', 
+                             truePosX, '\t', truePosY, '\t', truePosTheta)
+
     def printLocalistationFault(self):
         currentXFault = abs(round(self._position[self.X] - self._world.getTrueRobotPose()[self.X], 3))
         currentYFault = abs(round(self._position[self.Y] - self._world.getTrueRobotPose()[self.Y], 3))
@@ -254,5 +272,5 @@ class Localisation:
         self.yFault = abs(round((self.yFault * self.FaultCount + currentYFault) / (self.FaultCount + 1), 3))
         self.thetaFault = abs(round((self.thetaFault * self.FaultCount + currentThetaFault) / (self.FaultCount + 1), 3))
         self.FaultCount += 1
-        print(currentXFault, "\t", currentYFault, "\t", currentThetaFault, "\t",
-                     self.xFault, "\t", self.yFault, "\t", self.thetaFault, "\t", self.FaultCount)
+        Stats.localisationFault(currentXFault, "\t", currentYFault, "\t", currentThetaFault, "\t",
+             self.xFault, "\t", self.yFault, "\t", self.thetaFault, "\t", self.FaultCount)

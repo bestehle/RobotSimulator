@@ -10,6 +10,7 @@ import random
 from numpy import math
 
 from robotsimulator import GeometryHelper
+from robotsimulator import Stats
 from robotsimulator.EventEmitter import EventEmitter
 
 
@@ -24,9 +25,6 @@ class Robot:
         self.FRONT = 10
         self.BOXES_DISTANCES = 0
         self.BOXES_ANGLES = 1
-        
-        self.approximateBoxPositions = []
-        self.trueBoxPositions = []
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -177,7 +175,7 @@ class Robot:
         if v == 0:
             return
         t = int((l / v) / self._T)
-        for i in range(0, t):
+        for _ in range(0, t):
             self.move([v, 0])
 
     # drives length l with speed v 
@@ -207,7 +205,7 @@ class Robot:
             omega = (v / r)
         sign = -1 if delta_theta < 0 else 1
         tau = round((((delta_theta * sign) % (math.pi * 2)) / omega) / self._T)
-        for i in range(0, tau):
+        for _ in range(0, tau):
             self.move([v, omega * sign])
             
             
@@ -417,7 +415,6 @@ class Robot:
     # Use senseBoxes() to check for near boxes.
     #
     def findBoxes(self):
-        print ("find boxes")
         # boxes in front
         self._findBoxes(0, 0)
         self.rotate(math.radians(130))
@@ -440,8 +437,9 @@ class Robot:
             
             halfSensorAngle = self._world._boxSensorAngle / 2;
             if angle > -halfSensorAngle + ignoreLeft and angle < halfSensorAngle - ignoreRight:
-                self.approximateBoxPositions += GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
-                self.trueBoxPositions += GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
+                approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
+                trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
+                Stats.boxPositions(approximateBoxPosition, trueBoxPosition)
                 
 
     # --------
