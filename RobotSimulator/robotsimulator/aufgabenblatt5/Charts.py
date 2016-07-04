@@ -6,6 +6,35 @@ f1 = open(Stats.LOCALISATION_FAULT_FILE)
 f2 = open(Stats.BOX_POSITIONS_FILE)
 f3 = open(Stats.ROBOT_POSITIONS_FILE)
 
+def boxPositions():
+    positons = []
+    for line in f2:
+        line = line.split('\t')
+        lst = [float(x) for x in line]
+        positons.append(lst)
+        
+    approX = list(map(lambda l : l[0], positons))
+    approY = list(map(lambda l : l[1], positons))
+    trueX = list(map(lambda l : l[2], positons))
+    trueY = list(map(lambda l : l[3], positons))
+    
+    # number of items
+    num = len(approX) + 1
+    time = list(range(1, num))
+    
+    # plot
+    plt.subplot(211)
+    plt.ylabel('x', fontsize=18)
+    plt.plot(time, approX, 'r', label='Line 1')
+    plt.plot(time, trueX, 'g')
+    print (approY, trueY)
+    plt.subplot(212)
+    plt.ylabel('y', fontsize=18)
+    plt.plot(time, approY, 'r')
+    plt.plot(time, trueY, 'g')
+
+    plt.show()
+
 def localisationFault():
     # read file
     faults = []
@@ -66,11 +95,11 @@ def robotPosition():
     plt.ylabel('theta', fontsize=18)
     plt.plot(time, approTheta, 'r')
     plt.plot(time, trueTheta, 'g')
+    plt.show()
 
-
-localisationFault()
-robotPosition()
-plt.show()
+boxPositions()
+#localisationFault()
+#robotPosition()
 
 
 
