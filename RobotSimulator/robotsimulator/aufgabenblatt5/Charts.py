@@ -98,8 +98,8 @@ def robotPosition():
     plt.show()
 
 boxPositions()
-#localisationFault()
-#robotPosition()
+localisationFault()
+robotPosition()
 
 
 

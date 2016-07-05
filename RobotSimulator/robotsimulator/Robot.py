@@ -25,6 +25,7 @@ class Robot:
         self.FRONT = 10
         self.BOXES_DISTANCES = 0
         self.BOXES_ANGLES = 1
+        self.BOX_DETECTION_TOLERANCE = 0.2
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -51,6 +52,8 @@ class Robot:
         
         # method to be called if we use approximate position
         self._approximatePosition = None
+        # number of detected boxes
+        self._detectedBoxes = []
         
     def activateMotionNoise(self):
         self._motionNoise = True
@@ -421,6 +424,15 @@ class Robot:
         self._findBoxes(10, 0)
         self.rotate(math.radians(130))
         self._findBoxes(10, 30)
+    
+    def _isNewBox(self, position):
+        for box in self._detectedBoxes:
+            if (position[0] < box[0] + self.BOX_DETECTION_TOLERANCE
+            and position[0] > box[0] - self.BOX_DETECTION_TOLERANCE
+            and position[1] < box[1] + self.BOX_DETECTION_TOLERANCE
+            and position[1] > box[1] - self.BOX_DETECTION_TOLERANCE):
+                return False;
+        return True;
         
     def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree):
         ignoreRight = math.radians(ignoreRightDegree)
@@ -438,9 +450,15 @@ class Robot:
             halfSensorAngle = self._world._boxSensorAngle / 2;
             if angle > -halfSensorAngle + ignoreLeft and angle < halfSensorAngle - ignoreRight:
                 approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
-                trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
-                Stats.boxPositions(approximateBoxPosition, trueBoxPosition)
-                
+                # box detected, but already seen?
+                if (self._isNewBox(approximateBoxPosition)):
+                    self._detectedBoxes.append(approximateBoxPosition)
+                    print ('Detected Boxes : ' , len(self._detectedBoxes))
+    
+                    trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
+                    Stats.boxPositions(round(approximateBoxPosition[0], 3), '\t', round(approximateBoxPosition[1], 3), '\t',
+                                       round(trueBoxPosition[0], 3), '\t', round(trueBoxPosition[1], 3))
+                    
 
     # --------
     # Sense Landmarks
