@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from robotsimulator import Stats
+from robotsimulator import Stats, GeometryHelper
 
 f1 = open(Stats.LOCALISATION_FAULT_FILE)
 f2 = open(Stats.BOX_POSITIONS_FILE)
@@ -70,10 +70,10 @@ def robotPosition():
     # extract
     approX = list(map(lambda l : l[0], positons))
     approY = list(map(lambda l : l[1], positons))
-    approTheta = list(map(lambda l : l[2], positons))
+    approTheta = list(map(lambda l : GeometryHelper.diffDegree(l[2], 0), positons))
     trueX = list(map(lambda l : l[3], positons))
     trueY = list(map(lambda l : l[4], positons))
-    trueTheta = list(map(lambda l : l[5], positons))
+    trueTheta = list(map(lambda l : GeometryHelper.diffDegree(l[5], 0), positons))
         
     # number of items
     num = len(approX) + 1
