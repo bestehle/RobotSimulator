@@ -327,7 +327,7 @@ class Robot:
             else:
                 return
 
-    def braitenberg(self, v, sensorsToUse=3, distance=5):
+    def braitenberg(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         while True:
@@ -335,7 +335,7 @@ class Robot:
             left, right, front = self.getWeightedSensorData(sensorsToUse, distance)  
             
             if self.isInDeadEnd(distance, scale, left, right, front):
-                self.move([0, -self._maxOmega])
+                self.move([minSpeed, -self._maxOmega])
                 continue
             
             if right > left:
@@ -347,7 +347,7 @@ class Robot:
             # print(left, right, front, scaledAngle)
             
             if angle != 0:
-                self.move([v, scaledAngle])
+                self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle])
             else:
                 self.moveRandom(v, x, scaledAngle)
 
