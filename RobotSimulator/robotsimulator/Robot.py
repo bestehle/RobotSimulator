@@ -194,13 +194,13 @@ class Robot:
         v = (l - trueL) / self._T
         self.move([v, 0])
             
-    def curveDrive(self, v, r, delta_theta):
+    def curveDrive(self, v, r, delta_theta, tolerance=0.01):
         if v == 0 and r != 0:
             return
         if r == 0:
             theta = self.getOdoPose()[2] + delta_theta
             diff = GeometryHelper.diffDegree(theta, self.getOdoPose()[2])
-            while abs(diff) > 0.01 :
+            while abs(diff) > tolerance :
                 self.move([0, diff])
                 diff = GeometryHelper.diffDegree(theta, self.getOdoPose()[2])
             return
@@ -385,7 +385,7 @@ class Robot:
     # rotate the robot with the given delta
     #     
     def rotate(self, delta):
-        self.curveDrive(0, 0, delta)
+        self.curveDrive(0, 0, delta, 0.1)
 
     # --------
     # sense and returns distance measurements for each sensor beam.
