@@ -27,6 +27,7 @@ import numpy as np
 from robotsimulator.CursorController import *
 from robotsimulator.OccupancyGrid import *
 from robotsimulator.graphics.graphics import *
+from robotsimulator import GeometryHelper
 
 
 class World:
@@ -110,6 +111,20 @@ class World:
         
         # approximate position of the robot
         self._approximatePosition = None
+
+    # --------
+    # Draw a polyline.
+    #
+    def drawGlobalLocalisationGrid(self):
+        for y in range(self._height):
+            for x in range(self._width):
+                points = [Point(x, y), Point(x + 1, y), Point(x + 1, y + 1), Point(x, y + 1)]
+                p = Polygon(points)
+                p.draw(self._win)
+                if ((x + y) % 2):
+                    p.setFill(color_rgb(224, 224, 224))
+                else:
+                    p.setFill(color_rgb(192, 192, 192))
 
     # --------
     # Draw a polyline.
@@ -307,6 +322,35 @@ class World:
         # show all
         self._udateWindow()
         return True
+
+    # --------
+    # Get the values from the global localization grid for the position p.
+    # Position p is a list with (x, y, theta)
+    #
+    def globalSense(self, p):
+        (_, _, pTheta) = p
+        numberOfSensors = 36
+        dTheta = 360.0 / numberOfSensors
+        # sensor directions
+        alphas = [(-90.0 + dTheta * i) * (math.pi / 180.0) for i in range(numberOfSensors)]
+        # Maximum sensor value for each sensor beam
+        distMax = 0.5
+        # list to store all recognized sense values
+        values = []
+        # check all sensors
+        for alpha in alphas:
+            theta = (pTheta + alpha) % (2 * pi)
+            q = GeometryHelper.calculatePosition(theta, distMax, p)
+            #point = Point(q[0], q[1])
+            #cicle = Circle(point, 0.06)
+            #cicle.draw(self._win)
+            #cicle.setFill(graphics.color_rgb(255, 0, 0))
+            x = int(q[0])
+            y = int(q[1])
+            value = (x + y) % 2
+            values.append(value)
+        
+        return values
 
     # --------
     # Compute distance values in the given direction of the robot sensors
