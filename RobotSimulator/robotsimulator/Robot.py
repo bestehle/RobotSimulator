@@ -12,6 +12,7 @@ from numpy import math
 from robotsimulator import GeometryHelper
 from robotsimulator import Stats
 from robotsimulator.EventEmitter import EventEmitter
+from robotsimulator.graphics.graphics import Point, Circle
 
 
 class Robot:
@@ -25,7 +26,7 @@ class Robot:
         self.FRONT = 10
         self.BOXES_DISTANCES = 0
         self.BOXES_ANGLES = 1
-        self.BOX_DETECTION_TOLERANCE = 0.2
+        self.BOX_DETECTION_TOLERANCE = 0.4
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -277,7 +278,7 @@ class Robot:
                 return True
             if self.obstacleInWay(sensorsToUse, distanceTol):
                 return False
-            self.move([ v * max(minSpeed, (1 - abs(delta_theta * 2) / math.pi)), delta_theta])
+            self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi)), delta_theta])
         
     def followPolylineTurnFirst(self, v, poly, tol=1):
         for p in poly:
@@ -444,18 +445,22 @@ class Robot:
         # check all found boxes
         for i in range(0, len(boxes[self.BOXES_DISTANCES])):
             # distance/angle to the found box
-            angle = boxes[self.BOXES_ANGLES][i]
+            angle = -boxes[self.BOXES_ANGLES][i]
             distance = boxes[self.BOXES_DISTANCES][i]
             
             halfSensorAngle = self._world._boxSensorAngle / 2;
             if angle > -halfSensorAngle + ignoreLeft and angle < halfSensorAngle - ignoreRight:
                 approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
+                trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
                 # box detected, but already seen?
-                if (self._isNewBox(approximateBoxPosition)):
+                if (self._isNewBox(trueBoxPosition)):  # TODO
                     self._detectedBoxes.append(approximateBoxPosition)
                     print ('Detected Boxes : ' , len(self._detectedBoxes))
+                    p = Point(approximateBoxPosition[0], approximateBoxPosition[1])
+                    c = Circle(p, 0.06)
+                    c.draw(self._world._win)
+                    c.setFill('red')
     
-                    trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
                     Stats.boxPositions(round(approximateBoxPosition[0], 3), '\t', round(approximateBoxPosition[1], 3), '\t',
                                        round(trueBoxPosition[0], 3), '\t', round(trueBoxPosition[1], 3))
                     
