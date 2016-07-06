@@ -4,9 +4,9 @@ from statistics import median
 from numpy import math, random
 
 from robotsimulator import GeometryHelper
+from robotsimulator import Stats
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
-from robotsimulator import Stats
 
 
 class GlobalLocalisation:
@@ -74,16 +74,9 @@ class GlobalLocalisation:
             self.printPosition()
         
     def _generateParticles(self):
-        xValues = []
-        yValues = []
-        thetaValues = []
-        # calculate the approximate position
-        for x in range (self._world._width + 1):
-            for y in range (self._world._height + 1):
-                for _ in range(1, 20):
-                    xValues.append(x + random.randint(1, self._world._width))
-                    yValues.append(y + random.randint(1, self._world._height))
-                    thetaValues.append(random.randint(4) * math.pi)
+        xValues = list(map(lambda x: x * self._world._width, random.random(self._numberOfParticles)))
+        yValues = list(map(lambda y: y * self._world._height, random.random(self._numberOfParticles)))
+        thetaValues = list(map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles)))
 
         self._numberOfParticles = len(thetaValues)
         weightValues = [0] * self._numberOfParticles
