@@ -34,6 +34,28 @@ def boxPositions():
     plt.plot(time, trueY, 'g')
 
     plt.show()
+    
+
+def boxPositionsInGrid():
+    positons = []
+    for line in f2:
+        line = line.split('\t')
+        lst = [float(x) for x in line]
+        positons.append(lst)
+        
+    approX = list(map(lambda l : l[0], positons))
+    approY = list(map(lambda l : l[1], positons))
+    trueX = list(map(lambda l : l[2], positons))
+    trueY = list(map(lambda l : l[3], positons))
+    
+    # plot
+    plt.ylabel('y', fontsize=18)
+    plt.xlabel('x', fontsize=18)
+    plt.plot(approX, approY, 'ro', label='Line 1')
+    plt.plot(trueX, trueY, 'g+')
+    plt.axis([0, 19, 0, 14])
+    print (approY, trueY)
+    plt.show()
 
 def localisationFault():
     # read file
@@ -97,7 +119,8 @@ def robotPosition():
     plt.plot(time, trueTheta, 'g')
     plt.show()
 
-boxPositions()
+# boxPositions()
+boxPositionsInGrid()
 localisationFault()
 robotPosition()
 
