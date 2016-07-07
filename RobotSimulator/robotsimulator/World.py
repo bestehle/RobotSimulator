@@ -24,10 +24,10 @@ from math import *
 import time
 
 import numpy as np
+from robotsimulator import GeometryHelper
 from robotsimulator.CursorController import *
 from robotsimulator.OccupancyGrid import *
 from robotsimulator.graphics.graphics import *
-from robotsimulator import GeometryHelper
 
 
 class World:
@@ -160,6 +160,15 @@ class World:
             color = min(255, int(poly[n][3]) * 10)
             c.setFill(graphics.color_rgb(255 - color, color, 0))
             self._drawnParticles.append(c)
+
+    # --------
+    # Draw Box (x, y, ...)
+    #        
+    def drawBox(self, approximateBoxPosition):
+        p = Point(approximateBoxPosition[0], approximateBoxPosition[1])
+        c = Circle(p, 0.06)
+        c.draw(self._win)
+        c.setFill('red')
 
     # --------
     # Draw postion (x, y, theta)
@@ -341,10 +350,10 @@ class World:
         for alpha in alphas:
             theta = (pTheta + alpha) % (2 * pi)
             q = GeometryHelper.calculatePosition(theta, distMax, p)
-            #point = Point(q[0], q[1])
-            #cicle = Circle(point, 0.06)
-            #cicle.draw(self._win)
-            #cicle.setFill(graphics.color_rgb(255, 0, 0))
+            # point = Point(q[0], q[1])
+            # cicle = Circle(point, 0.06)
+            # cicle.draw(self._win)
+            # cicle.setFill(graphics.color_rgb(255, 0, 0))
             x = int(q[0])
             y = int(q[1])
             value = (x + y) % 2

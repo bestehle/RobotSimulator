@@ -435,7 +435,8 @@ class Robot:
                 return False;
         return True;
         
-    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree):
+
+    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree, maxBoxDistance=5):
         ignoreRight = math.radians(ignoreRightDegree)
         ignoreLeft = math.radians(ignoreLeftDegree)
         boxes = self.senseBoxes()
@@ -453,13 +454,10 @@ class Robot:
                 approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
                 trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
                 # box detected, but already seen?
-                if (self._isNewBox(trueBoxPosition)):  # TODO
+                if (self._isNewBox(trueBoxPosition) or distance > maxBoxDistance):
                     self._detectedBoxes.append(approximateBoxPosition)
                     print ('Detected Boxes : ' , len(self._detectedBoxes))
-                    p = Point(approximateBoxPosition[0], approximateBoxPosition[1])
-                    c = Circle(p, 0.06)
-                    c.draw(self._world._win)
-                    c.setFill('red')
+                    self._world.drawBox(approximateBoxPosition)
     
                     Stats.boxPositions(round(approximateBoxPosition[0], 3), '\t', round(approximateBoxPosition[1], 3), '\t',
                                        round(trueBoxPosition[0], 3), '\t', round(trueBoxPosition[1], 3))
