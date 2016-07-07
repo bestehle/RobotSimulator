@@ -13,7 +13,7 @@ class GlobalLocalisation:
     # --------
     # init: Sets the robot and the world
     #
-    def __init__(self, robot, world, numberOfParticles=500):
+    def __init__(self, robot, world, numberOfParticles=1000):
         # const
         self.X = 0
         self.Y = 1
@@ -78,7 +78,6 @@ class GlobalLocalisation:
         yValues = list(map(lambda y: y * self._world._height, random.random(self._numberOfParticles)))
         thetaValues = list(map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles)))
 
-        self._numberOfParticles = len(thetaValues)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
