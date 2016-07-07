@@ -16,6 +16,7 @@ start = (2, 7)
 goal = (15, 6)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
+pathPlanning._grid.numberOfNeighbors = 8
 pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 pathPlanning._grid.drawGrid()

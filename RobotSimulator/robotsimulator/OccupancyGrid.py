@@ -31,6 +31,7 @@ class OccupancyGrid:
         self.width = width
         self.height = height
         self.cellSize = float(cellSize)
+        self.numberOfNeighbors = 8
 
     def printGrid(self):
         print("xSize*ySize: ", self.xSize, self.ySize)
@@ -155,15 +156,20 @@ class OccupancyGrid:
         if yi < 0 or yi > self.ySize:
             return
         return self.grid[xi][yi]
-    
-  
+
     # --------
     # returns the "eight" neighbors
     #
     def getNeighbors(self, coordinates):
         (x, y) = coordinates
-        # save coordinates of the eight neighbors.
-        results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1), (x + 1, y + 1)]
+        if (self.numberOfNeighbors == 4):
+            # save coordinates of the eight neighbors.
+            results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
+        elif (self.numberOfNeighbors == 8):
+            # save the coordinates of the eight neighbors
+            results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1), (x + 1, y - 1), (x - 1, y - 1), (x - 1, y + 1), (x + 1, y + 1)]
+        else:
+            raise Exception('OccupancyGrid', 'numberOfNeighbors need to be 4 or 8')
         # filter all coordinates which are not in bounds or a obstacle
         results = filter(self.inBounds, results)
         results = filter(self.passable, results)
@@ -221,7 +227,7 @@ class OccupancyGrid:
                 # - cell need not to be a obstacle
                 # - cell need to have minimum one neighbor cell which is an obstacle
                 if((self.getValueCell(xi, yi) == 0) 
-                   and (len(list(self.getNeighbors((xi, yi))))) < 8):
+                   and (len(list(self.getNeighbors((xi, yi))))) < self.numberOfNeighbors):
                     # add cell to openList with priority 0
                     cell = (xi, yi)
                     openList.insert(cell, 0)

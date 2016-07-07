@@ -18,6 +18,7 @@ myWorld = officeWorld.buildWorld()
 myWorld.setRobot(myRobot, 2, 7, 0 * math.pi)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
+pathPlanning._grid.numberOfNeighbors = 4
 pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
