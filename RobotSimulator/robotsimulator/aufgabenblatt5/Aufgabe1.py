@@ -4,7 +4,8 @@ from numpy import math
 
 from robotsimulator import GeometryHelper
 from robotsimulator import Robot
-from robotsimulator.Localisation import Localisation
+#from robotsimulator.LocalisationLandmarks import LocalisationLandmarks as Localisation
+from robotsimulator.LocalisationLikelihood import LocalisationLikelihood as Localisation
 from robotsimulator.PathPlanning import PathPlanning
 from robotsimulator.World import World
 from robotsimulator.graphics.graphics import Point
@@ -18,7 +19,7 @@ myWorld = officeWorld.buildWorld()
 myWorld.setRobot(myRobot, 2, 7, 0 * math.pi)
 
 pathPlanning = PathPlanning(myRobot, myWorld)
-pathPlanning._grid.numberOfNeighbors = 4
+pathPlanning._grid.numberOfNeighbors = 8
 pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
@@ -26,7 +27,6 @@ localisation = Localisation(myRobot, myWorld)
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
-# localisation.addLandmark(18, 1)
 
 myRobot.onMove(localisation.check)
 myRobot.useApproximatePosition(localisation.getPosition)

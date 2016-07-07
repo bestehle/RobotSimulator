@@ -1,7 +1,7 @@
 from numpy import math
 
 from robotsimulator import Robot
-from robotsimulator.Localisation import Localisation
+from robotsimulator.LocalisationLandmarks import LocalisationLandmarks as Localisation
 from robotsimulator.worlds import officeWorld
 
 myWorld = officeWorld.buildWorld()

@@ -1,6 +1,4 @@
-
 from statistics import median
-
 from numpy import math, random
 
 from robotsimulator import GeometryHelper
@@ -10,11 +8,7 @@ from robotsimulator.graphics.graphics import Line, Point
 
 
 class Localisation:
-    # --------
-    # init: Sets the robot and the world
-    #
-    def __init__(self, robot, world, numberOfParticles=500):
-        # const
+    def __init__(self, robot, world, numberOfParticles=100):
         self.X = 0
         self.Y = 1
         self.THETA = 2
@@ -42,14 +36,16 @@ class Localisation:
         self._landmarks = []
 
     # --------
+    # add a landmark which will be used for the measurement model
+    #        
+    def addLandmark(self, x, y):
+        self._landmarks.append((x, y))
+
+    # --------
     # return the coordinates (x, y, theta) of the approximate position
     #
     def getPosition(self):
         return self._position
-        
-
-    def addLandmark(self, x, y):
-        self._landmarks.append((x, y))
 
     # --------
     # check: call this method cyclic to run the localisation algorithm
@@ -57,8 +53,7 @@ class Localisation:
     #
     def check(self):
         self._sampleMotionModel()
-#        self._measurementModelSensors()
-        self._measurementModelLandMarks()
+        self._measurementModel()
         if self._drawParticles:
             self._world.drawParticles(self._particles)
         self._particles = self._resampling()
@@ -78,7 +73,7 @@ class Localisation:
             self.printLocalistationFault()
         if self._printPosition:
             self.printPosition()
-        
+
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
         xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
@@ -88,42 +83,15 @@ class Localisation:
         sumValues = [0] * self._numberOfParticles
         
         return [list(a) for a in zip(xValues, yValues, thetaValues, weightValues, sumValues)]
-    
-        
-    def matchParticle(self, particle):
-        weight = 0
-        sensorData = zip(self._robot.getSensorDirections(), self._robot.sense())
-        for direction, distance in sensorData:
-            if distance is not None:
-                sensorPosition = self._calculatePosition(direction, distance, particle)
-                weight += self._grid.getValueWeight(sensorPosition[0], sensorPosition[1])
-            else:
-                sensorPosition = self._calculatePosition(direction, 5, particle)
-                currentWeight = self._grid.getValueWeight(sensorPosition[0], sensorPosition[1])
-                if currentWeight == 1:
-                    weight += 1 
-                else: 
-                    weight += 0
-        return weight  #  1000 / (weight + 0.001) TODO
-                
-        
-        
-    def _calculatePosition(self, direction, distance, position):
-        absDirection = position[2] + direction
-        x = math.cos(absDirection) * distance
-        y = math.sin(absDirection) * distance
-        return position[0] + x, position[1] + y
-    
+   
     # --------
     # Pull particles depending on the weight of the particles with the roulette technique
-    # and return the 
+    # and return a new list with the pulled particles.
     #
     def _resampling(self):
         pulledParticles = []
         maximum = sum(p[self.WEIGHT] for p in self._particles)
-        pulled = {}
-        # print ("maximum is : " , maximum)
-        # pull particles
+
         for _ in range(self._numberOfParticles):
             item = random.uniform(0, maximum)
             # print ("random : ", item)
@@ -144,12 +112,6 @@ class Localisation:
             y = self._particles[m][self.Y]
             theta = self._particles[m][self.THETA]
             pulledParticles.append([x, y, theta, 0, 0])
-            if (m in pulled):
-                pulled[m] += 1
-            else:
-                pulled[m] = 1
-        
-#         print ("pulled particles by resampling (" , len(pulled.keys()) , ") : " , pulled)
 
         return pulledParticles
     
@@ -205,48 +167,6 @@ class Localisation:
             self._particles[i][self.THETA] = theta  # + random.normal(0.0, noiseReposition * 2)
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
-        
-    # --------
-    # Check how good the particles are and set the weight of each particle with the Likelihood-Field
-    #
-    def _measurementModelSensors(self):
-        weightSum = 0
-        for i in range(len(self._particles)):
-            self._particles[i][self.SUM] = weightSum
-            weight = self.matchParticle(self._particles[i])
-            # print ("weight", weight)
-            weightSum += weight
-            self._particles[i][self.WEIGHT] = weight
-    
-    # --------
-    # Check how good the particles are and set the weight of each particle with the distance to landmarks
-    #        
-    def _measurementModelLandMarks(self):
-        # get the distance for each landMark to the current approximate robot position
-        robotDistance = self._robot.senseLandmarks(self._landmarks)
-
-        weightSum = 0
-        # check each particle
-        for i in range(self._numberOfParticles):
-            self._particles[i][self.SUM] = weightSum
-            self._particles[i][self.WEIGHT] = 1
-            # check each landmark
-            for mark in range(len(self._landmarks)):
-                # coordinates of the landmark
-                (landmarkX, landmarkY) = self._landmarks[mark]
-                # distance of the particle to the landmark
-                particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX) ** 2 + (self._particles[i][self.Y] - landmarkY) ** 2)
-                # set (distance of robot to landmark) in relation to (distance of particle to landmark)
-                distance = abs(robotDistance[mark] - particleDistance)
-                # multiply the distance to the weight
-                self._particles[i][self.WEIGHT] *= distance
-                
-            # invert weight to get high value for a good particle
-            self._particles[i][self.WEIGHT] = 1 / self._particles[i][self.WEIGHT]
-            
-            # update the weight sum
-            weightSum += self._particles[i][self.WEIGHT]
-
 
     def printPosition(self):
         truePos = self._world.getTrueRobotPose()
