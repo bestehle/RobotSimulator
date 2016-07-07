@@ -4,9 +4,9 @@ from statistics import median
 from numpy import math, random
 
 from robotsimulator import GeometryHelper
+from robotsimulator import Stats
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
-from robotsimulator import Stats
 
 
 class Localisation:
@@ -83,10 +83,7 @@ class Localisation:
         [xPos, yPos, theta] = self._position
         xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
         yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
-#         thetaValues = map(lambda x: x * math.pi * 2, random.random(self._numberOfParticles))
         thetaValues = random.normal(theta, 0.2, self._numberOfParticles)
-        #xValues = random.normal(xPos, 0.2, self._numberOfParticles)
-        #yValues = random.normal(yPos, 0.2, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles
         
@@ -168,7 +165,7 @@ class Localisation:
             v_noisy = v + random.normal(0.05, math.sqrt(sigma_v_2))
     
             # Add noise to omega:
-            sigma_omega_tr_2 = (self._robot._k_theta / self._robot._T) * abs(omega)  # turning rate noise
+            sigma_omega_tr_2 = (self._robot._k_theta / self._robot._T) * abs(omega + 0.0001)  # turning rate noise
             sigma_omega_drift_2 = (self._robot._k_drift / self._robot._T) * abs(v)  # drift noise
             omega_noisy = omega + random.normal(0.0, math.sqrt(sigma_omega_tr_2))
             omega_noisy += random.normal(0.0, math.sqrt(sigma_omega_drift_2))
@@ -261,7 +258,7 @@ class Localisation:
         truePosTheta = round(truePos[self.THETA], 3)
         
         
-        Stats.robotPositions(approX, '\t', approY, '\t', approTheta, '\t', 
+        Stats.robotPositions(approX, '\t', approY, '\t', approTheta, '\t',
                              truePosX, '\t', truePosY, '\t', truePosTheta)
 
     def printLocalistationFault(self):
