@@ -278,7 +278,9 @@ class Robot:
                 return True
             if self.obstacleInWay(sensorsToUse, distanceTol):
                 return False
-            self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi)), delta_theta])
+            if not self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi)), delta_theta]):
+                for _ in range(1, 5):
+                    self.move([-1, 0])
         
     def followPolylineTurnFirst(self, v, poly, tol=1):
         for p in poly:
@@ -321,10 +323,10 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
-            # print(left, right, front, scaledAngle)
-            
             if angle != 0:
-                self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle])
+                if not self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle]):
+                    for _ in range(1, 5):
+                        self.move([-1, 0])
             else:
                 return
 
@@ -436,7 +438,7 @@ class Robot:
         return True;
         
 
-    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree, maxBoxDistance=5):
+    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree, maxBoxDistance=3.5):
         ignoreRight = math.radians(ignoreRightDegree)
         ignoreLeft = math.radians(ignoreLeftDegree)
         boxes = self.senseBoxes()
@@ -454,7 +456,8 @@ class Robot:
                 approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
                 trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
                 # box detected, but already seen?
-                if (self._isNewBox(trueBoxPosition) or distance > maxBoxDistance):
+                print(distance)
+                if (self._isNewBox(trueBoxPosition) and distance < maxBoxDistance):
                     self._detectedBoxes.append(approximateBoxPosition)
                     print ('Detected Boxes : ' , len(self._detectedBoxes))
                     self._world.drawBox(approximateBoxPosition)
