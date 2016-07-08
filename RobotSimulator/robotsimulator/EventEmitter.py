@@ -13,3 +13,6 @@ class EventEmitter:
     def emit(self, *args, **keywargs):
         for method in self._subscribers:
             method(*args, **keywargs)
+            
+    def clear(self):
+        self._subscribers = []

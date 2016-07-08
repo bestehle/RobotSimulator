@@ -121,6 +121,9 @@ class Robot:
     #
     def onMove(self, method):
         self._moveListener += method
+        
+    def clearOnMoveListener(self):
+        self._moveListener.clear()
 
     # --------
     # move the robot for the next time step T by the
