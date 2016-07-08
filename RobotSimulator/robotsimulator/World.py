@@ -138,7 +138,7 @@ class World:
                 p.draw(self._win)
                 r = randint(1, 1)
                 g = randint(1, 1)
-                b = randint(1, 255)
+                b = randint(1, 100)
                 p.setFill(color_rgb(r, g, b))
                 self._globalGrid[str(x) + '.' + str(y)] = r * g * b
                 

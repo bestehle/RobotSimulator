@@ -9,6 +9,7 @@ from robotsimulator.graphics.graphics import Line, Point
 
 class Localisation:
     def __init__(self, robot, world, numberOfParticles=100):
+        # constants to access items in list
         self.X = 0
         self.Y = 1
         self.THETA = 2
@@ -20,12 +21,13 @@ class Localisation:
         self.thetaFault = 0
         self.FaultCount = 0
         
+        # the variance for generated particles.
         self.PARTICLE_VARIANZ = 1
-        self._drawWayOfParticle = False
-        self._drawParticles = True
-        self._drawWayOfLocalisation = True
-        self._printFault = True
-        self._printPosition = True
+        self.drawWayOfParticle = False
+        self.drawParticles = False
+        self.drawWayOfLocalisation = False
+        self.printFault = False
+        self.printPosition = False
     
         self._robot = robot
         self._world = world
@@ -54,14 +56,14 @@ class Localisation:
     def check(self):
         self._sampleMotionModel()
         self._measurementModel()
-        if self._drawParticles:
+        if self.drawParticles:
             self._world.drawParticles(self._particles)
         self._particles = self._resampling()
         # calculate the approximate position
         x = median(map(lambda l : l[self.X], self._particles))
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
-        if self._drawWayOfLocalisation:
+        if self.drawWayOfLocalisation:
                 pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
                 color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
                 pathLine.setFill(graphics.color_rgb(color, 255 - color, 0))
@@ -69,9 +71,9 @@ class Localisation:
                 pathLine.draw(self._world._win)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
-        if self._printFault:
+        if self.printFault:
             self.printLocalistationFault()
-        if self._printPosition:
+        if self.printPosition:
             self.printPosition()
 
     def _generateParticles(self):
@@ -156,7 +158,7 @@ class Localisation:
             y = (y + d * math.sin(theta + 0.5 * dTheta))
             theta = (theta + dTheta) % (2 * math.pi)
             
-            if self._drawWayOfParticle == True:
+            if self.drawWayOfParticle == True:
                 pathLine = Line(Point(self._particles[i][self.X], self._particles[i][self.Y]), Point(x, y))
                 pathLine.setFill('green')
                 pathLine.setWidth(1)

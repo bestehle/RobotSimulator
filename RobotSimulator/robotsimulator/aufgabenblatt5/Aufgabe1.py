@@ -24,6 +24,9 @@ pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
 localisation = Localisation(myRobot, myWorld)
+localisation.drawParticles = True
+localisation.printFault = True
+localisation.printPositionn = True
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
