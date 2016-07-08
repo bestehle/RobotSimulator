@@ -22,6 +22,7 @@
 
 from math import *
 import time
+from random import randint
 
 import numpy as np
 from robotsimulator import GeometryHelper
@@ -111,20 +112,36 @@ class World:
         
         # approximate position of the robot
         self._approximatePosition = None
+        
+        # dict to store the values of the global localisation grid
+        self._globalGrid = {}
+
+    # --------
+    # Get the values from a global localization grid for the position (x,y).
+    #
+    def _getGlobalSenseValue(self, x, y):
+        if (0 > x or x > self._width):
+            return None
+        if (0 > y or y > self._height):
+            return None
+        return self._globalGrid[str(x) + '.' + str(y)]
 
     # --------
     # Draw a polyline.
     #
     def drawGlobalLocalisationGrid(self):
-        for y in range(self._height):
-            for x in range(self._width):
+        print(randint(0,9))
+        for y in range(self._height + 1):
+            for x in range(self._width + 1):
                 points = [Point(x, y), Point(x + 1, y), Point(x + 1, y + 1), Point(x, y + 1)]
                 p = Polygon(points)
                 p.draw(self._win)
-                if ((x + y) % 2):
-                    p.setFill(color_rgb(224, 224, 224))
-                else:
-                    p.setFill(color_rgb(192, 192, 192))
+                r = randint(1, 1)
+                g = randint(1, 1)
+                b = randint(1, 255)
+                p.setFill(color_rgb(r, g, b))
+                self._globalGrid[str(x) + '.' + str(y)] = r * g * b
+                
 
     # --------
     # Draw a polyline.
@@ -356,7 +373,7 @@ class World:
             # cicle.setFill(graphics.color_rgb(255, 0, 0))
             x = int(q[0])
             y = int(q[1])
-            value = (x + y) % 2
+            value = self._getGlobalSenseValue(x, y)
             values.append(value)
         
         return values

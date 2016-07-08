@@ -5,6 +5,23 @@ from robotsimulator import Stats, GeometryHelper
 f1 = open(Stats.LOCALISATION_FAULT_FILE)
 f2 = open(Stats.BOX_POSITIONS_FILE)
 f3 = open(Stats.ROBOT_POSITIONS_FILE)
+f4 = open(Stats.GLOBAL_LOCALISATION_WEIGHT_SUM)
+
+def globalLocalisationWeightSum():
+    weights = []
+    for line in f4:
+        weights.append(int(line))
+    
+    # number of items
+    num = len(weights) + 1
+    time = list(range(1, num))
+    
+    # plot
+    plt.subplot(211)
+    plt.ylabel('weight sum', fontsize=18)
+    plt.plot(time, weights, 'r')
+    
+    plt.show()
 
 def boxPositions():
     positons = []
@@ -120,9 +137,10 @@ def robotPosition():
     plt.show()
 
 # boxPositions()
-boxPositionsInGrid()
-localisationFault()
-robotPosition()
+globalLocalisationWeightSum()
+#boxPositionsInGrid()
+#localisationFault()
+#robotPosition()
 
 
 
