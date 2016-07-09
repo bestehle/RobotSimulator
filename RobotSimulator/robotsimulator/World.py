@@ -136,9 +136,9 @@ class World:
                 points = [Point(x, y), Point(x + 1, y), Point(x + 1, y + 1), Point(x, y + 1)]
                 p = Polygon(points)
                 p.draw(self._win)
-                r = randint(1, 1)
-                g = randint(1, 1)
-                b = randint(1, 100)
+                r = randint(1, 10)
+                g = randint(1, 10)
+                b = randint(1, 50)
                 p.setFill(color_rgb(r, g, b))
                 self._globalGrid[str(x) + '.' + str(y)] = r * g * b
                 
