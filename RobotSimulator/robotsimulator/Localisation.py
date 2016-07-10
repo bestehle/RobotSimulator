@@ -74,7 +74,7 @@ class Localisation:
         if self.printFault:
             self.printLocalistationFault()
         if self.printPosition:
-            self.printPosition()
+            self.printRobotPosition()
 
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
@@ -170,7 +170,7 @@ class Localisation:
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
 
-    def printPosition(self):
+    def printRobotPosition(self):
         truePos = self._world.getTrueRobotPose()
         approX = round(self._position[self.X], 3)
         approY = round(self._position[self.Y], 3)

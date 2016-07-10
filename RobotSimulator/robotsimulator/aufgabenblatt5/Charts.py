@@ -136,11 +136,11 @@ def robotPosition():
     plt.plot(time, trueTheta, 'g')
     plt.show()
 
-# boxPositions()
+boxPositions()
 globalLocalisationWeightSum()
-#boxPositionsInGrid()
-#localisationFault()
-#robotPosition()
+boxPositionsInGrid()
+localisationFault()
+robotPosition()
 
 
 

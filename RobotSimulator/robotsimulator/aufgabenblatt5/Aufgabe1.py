@@ -26,9 +26,9 @@ pathPlanning._grid.addSafetyDistance(myRobot, 0.09)
 pathPlanning._grid.brushfire()
 
 localisation = Localisation(myRobot, myWorld)
-localisation.drawParticles = False
+localisation.drawParticles = True
 localisation.printFault = True
-localisation.printPositionn = True
+localisation.printPosition = True
 localisation.addLandmark(1, 1)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
@@ -40,6 +40,13 @@ planner = Planner(myWorld)
 
 path = planner.printablePath()
 draw.polyline(path)
+
+# settings for polyline follow
+v = 1
+sensorsToUse = 9
+sensorMaxDistance = 1
+avoidDistance = 0.6
+tol = 0.5
 
 # visit all rooms
 while (not planner.roomsVisited()):
@@ -54,7 +61,7 @@ while (not planner.roomsVisited()):
     draw.polyline(path)
     polyline = list(map(lambda point : Point(point[0], point[1]), path))
 
-    myRobot.followPolylineWithObstacle(1, polyline, 9, 1, 0.6, 0.5)   
+    myRobot.followPolylineWithObstacle(v, polyline, sensorsToUse, sensorMaxDistance, avoidDistance, tol)   
     myRobot.findBoxes()
 
 myWorld.close()

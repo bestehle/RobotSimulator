@@ -327,9 +327,13 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
+            # move the robot and check if the robot stalled.
+            # if the robot stalled, rotate with 90 degree to left or right
             if not self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle]):
-                for _ in range(1, 5):
-                    self.move([-1, 0])
+                if right > left:
+                    self.rotate(-(math.pi / 2))
+                else:
+                    self.rotate((math.pi / 2))
         self._world.ROBOT_WAY_COLOR = 'red'
 
     def braitenberg(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
