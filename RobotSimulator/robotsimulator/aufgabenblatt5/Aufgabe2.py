@@ -6,6 +6,8 @@ from robotsimulator.World import World
 from robotsimulator.worlds import officeWorldWithGlobalGrid as officeWorld
 from robotsimulator.LocalisationGlobal import LocalisationGlobal as Localisation
 
+def localisedRobot():
+    print ("Robot position is known")
 
 myWorld = World(20, 20)
 myRobot = Robot.Robot()
@@ -18,13 +20,14 @@ pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
 localisation = Localisation(myRobot, myWorld, numberOfParticles=1000)
+localisation.onLocalised(localisedRobot)
 localisation.drawParticles = True
 
 myRobot.onMove(localisation.check)
 
 #myRobot.useApproximatePosition(localisation.getPosition)
 
-myRobot.braitenberg(0.6, 9, 2, 0.5)
+myRobot.braitenberg(1, 9, 2, 0.5)
 
 myWorld.close()
 

@@ -37,19 +37,19 @@ class Localisation:
         self._numberOfParticles = numberOfParticles
         self._particles = self._generateParticles()
         self._landmarks = []
-        self._positionFoundListener = EventEmitter()
+        self._localisedListener = EventEmitter()
     
     # --------
     # add a method to call after the position was found.
     #
-    def onPositionFound(self, method):
-        self._positionFoundListener += method
+    def onLocalised(self, method):
+        self._localisedListener += method
        
     # --------
     # clear all listeners for the position found event.
     # 
-    def clearOnPositionFoundListener(self):
-        self._positionFoundListener.clear()
+    def clearOnLListener(self):
+        self._localisedListener.clear()
         
     # --------
     # add a landmark which will be used for the measurement model
@@ -92,8 +92,8 @@ class Localisation:
 
     def _generateParticles(self):
         [xPos, yPos, theta] = self._position
-        xValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + xPos, random.random(self._numberOfParticles))
-        yValues = map(lambda x: (x - 0.5) * self.PARTICLE_VARIANZ + yPos, random.random(self._numberOfParticles))
+        xValues = random.normal(xPos, 0.2, self._numberOfParticles)
+        yValues = random.normal(yPos, 0.2, self._numberOfParticles)
         thetaValues = random.normal(theta, 0.2, self._numberOfParticles)
         weightValues = [0] * self._numberOfParticles
         sumValues = [0] * self._numberOfParticles

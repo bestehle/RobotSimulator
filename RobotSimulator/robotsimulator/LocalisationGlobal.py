@@ -1,5 +1,5 @@
 
-from numpy import math, random
+from numpy import math, random, var
 
 from robotsimulator import Stats
 from robotsimulator.Localisation import Localisation
@@ -8,6 +8,11 @@ from robotsimulator.Localisation import Localisation
 class LocalisationGlobal(Localisation):
     def __init__(self, *args, **keywargs):
         super().__init__(*args, **keywargs)
+        self.WEIGHT_LIMIT = 10000000000
+        self.VARX_LIMIT = 0.03
+        self.VARY_LIMIT = 0.03
+        self.isLocalisedCount = 0
+        self.IS_LOCALISED_LMIT = 50
         
     def _generateParticles(self):
         xValues = list(map(lambda x: x * self._world._width, random.random(self._numberOfParticles)))
@@ -41,6 +46,27 @@ class LocalisationGlobal(Localisation):
             
             # update the weight sum
             weightSum += self._particles[i][self.WEIGHT]
-        Stats.globalLocalisationWeightSum(weightSum)
+
+        # unpack vals
+        xVals = list(map(lambda p: p[self.X], self._particles))
+        yVals = list(map(lambda p: p[self.Y], self._particles))
+        # get the variance
+        xVar = var(xVals)
+        yVar = var(yVals)
+
+        Stats.globalLocalisationWeightSum(weightSum, '\t', xVar, '\t', yVar, '\t', self.WEIGHT_LIMIT, '\t', self.VARX_LIMIT, '\t', self.VARY_LIMIT)
+
         if (weightSum == self._numberOfParticles):
             self._particles = self._generateParticles()
+            
+            
+        if (weightSum > self.WEIGHT_LIMIT and xVar < self.VARX_LIMIT and yVar < self.VARY_LIMIT):
+            self.isLocalisedCount += 1
+        else:
+            self.isLocalisedCount = 0
+        if (self.isLocalisedCount > 0 and self.isLocalisedCount <= self.IS_LOCALISED_LMIT):
+            print ('Localization complete : ', (self.isLocalisedCount / self.IS_LOCALISED_LMIT * 100), '%')
+        if (self.isLocalisedCount == self.IS_LOCALISED_LMIT):
+            self._localisedListener.emit()
+            
+            

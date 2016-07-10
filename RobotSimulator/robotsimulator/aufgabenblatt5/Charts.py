@@ -9,17 +9,48 @@ f4 = open(Stats.GLOBAL_LOCALISATION_WEIGHT_SUM)
 
 def globalLocalisationWeightSum():
     weights = []
+    varX = []
+    varY = []
+    weightsLimit = []
+    varXLimit = []
+    varYLimit = []
     for line in f4:
-        weights.append(int(line))
-    
+        line = line.split('\t')
+        weights.append(int(line[0]))
+        varX.append(float(line[1]))
+        varY.append(float(line[2]))
+        weightsLimit.append(int(line[3]))
+        varXLimit.append(float(line[4]))
+        varYLimit.append(float(line[5]))
+    print (varX)
     # number of items
-    num = len(weights) + 1
-    time = list(range(1, num))
+    num = len(weights)
+    time = list(range(0, num))
     
+    #weightsLimit = [10000000000] * num
+    #varXLimit = [0.03] * num
+    #varYLimit = [0.03] * num
+    
+    plt.suptitle('Robot position', fontsize=20)
     # plot
-    plt.subplot(211)
-    plt.ylabel('weight sum', fontsize=18)
+    plt.subplot(311)
+    plt.ylabel('weight sum', fontsize=15)
     plt.plot(time, weights, 'r')
+    plt.plot(time, weightsLimit, 'g')
+    plt.axis([0, num, 0, weightsLimit[0] * 10])
+
+    plt.subplot(312)
+    plt.ylabel('Varianz x', fontsize=15)
+    plt.plot(time, varX, 'r')
+    plt.plot(time, varXLimit, 'g')
+    plt.axis([0, num, 0, varXLimit[0] * 10])
+    
+    plt.subplot(313)
+    plt.ylabel('Varianz y', fontsize=15)
+
+    plt.plot(time, varY, 'r')
+    plt.plot(time, varYLimit, 'g')
+    plt.axis([0, num, 0, varYLimit[0] * 10])
     
     plt.show()
 
