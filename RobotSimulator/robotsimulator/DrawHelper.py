@@ -8,4 +8,10 @@ class DrawHelper:
         polyline = []
         for (x, y) in path:
             polyline.append(Point(x, y))
-        self.world.drawPolyline(polyline, color='green')
+        self.world.drawPolyline(polyline, color)
+        
+    def permanentPolyline(self, path, color='green'):
+        polyline = []
+        for (x, y) in path:
+            polyline.append(Point(x, y))
+        self.world.drawPermanentPolyline(polyline, color)

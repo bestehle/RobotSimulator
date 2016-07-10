@@ -25,6 +25,13 @@ class PlanByPermutations:
                 minDistance = distance
                 self.fastest = i
 
+    # get all valid paths.
+    def getAllPaths(self):
+        paths = []
+        for i in range(len(self.permutations)):
+            paths.append([self.start] + list(map(lambda room : (room[1], room[2]), self.permutations[i])))
+        return paths
+
     # gets permutations
     def permute(self, rooms, l, r):
         if l==r:

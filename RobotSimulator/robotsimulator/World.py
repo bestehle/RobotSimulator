@@ -146,6 +146,16 @@ class World:
                 
 
     # --------
+    # Draw a polyline without undraw previous polylines.
+    #
+    def drawPermanentPolyline(self, poly, color='green'):
+        for n in range(len(poly) - 1):
+            l = Line(poly[n], poly[n + 1])
+            l.draw(self._win)
+            l.setFill(color)
+            l.setWidth(3)
+
+    # --------
     # Draw a polyline.
     #
     def drawPolyline(self, poly, color='green'):
