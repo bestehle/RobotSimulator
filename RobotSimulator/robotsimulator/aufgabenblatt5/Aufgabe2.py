@@ -17,7 +17,7 @@ pathPlanning = PathPlanning(myRobot, myWorld)
 pathPlanning._grid.addSafetyDistance(myRobot, 0.1)
 pathPlanning._grid.brushfire()
 
-localisation = Localisation(myRobot, myWorld, numberOfParticles=2000)
+localisation = Localisation(myRobot, myWorld, numberOfParticles=1000)
 localisation.drawParticles = True
 
 myRobot.onMove(localisation.check)
