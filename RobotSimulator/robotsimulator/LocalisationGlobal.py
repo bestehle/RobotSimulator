@@ -1,8 +1,7 @@
 
 from numpy import math, random, var
 
-from robotsimulator import Stats
-from robotsimulator.Localisation import Localisation
+from robotsimulator import Stats, Localisation
 
 
 class LocalisationGlobal(Localisation):

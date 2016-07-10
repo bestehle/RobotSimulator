@@ -169,9 +169,9 @@ def robotPosition():
 
 # boxPositions()
 globalLocalisationWeightSum()
-#boxPositionsInGrid()
-#localisationFault()
-#robotPosition()
+# boxPositionsInGrid()
+# localisationFault()
+robotPosition()
 
 
 

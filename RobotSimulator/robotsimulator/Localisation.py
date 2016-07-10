@@ -78,11 +78,7 @@ class Localisation:
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
         if self.drawWayOfLocalisation:
-                pathLine = Line(Point(self._position[self.X], self._position[self.Y]), Point(x, y))
-                color = min(255, int(abs(self._position[self.THETA] - theta) * 1000))
-                pathLine.setFill(graphics.color_rgb(color, 255 - color, 0))
-                pathLine.setWidth(2)
-                pathLine.draw(self._world._win)
+            self.drawHelper.drawWayOfLocalisation(self, x, y, theta)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
         if self.printFault:
@@ -134,7 +130,7 @@ class Localisation:
     # --------
     # Add noisy sample motion of robot to all particles
     #
-    def _sampleMotionModel(self, noiseFaktor=30, noiseReposition=0.05):  # TODO
+    def _sampleMotionModel(self, noiseFaktor=30, noiseReposition=0.05):
         for i in range(self._numberOfParticles):
             v = max(self._robot._currentV, 0.01)
             omega = self._robot._currentOmega
@@ -172,15 +168,12 @@ class Localisation:
             y = (y + d * math.sin(theta + 0.5 * dTheta))
             theta = (theta + dTheta) % (2 * math.pi)
             
-            if self.drawWayOfParticle == True:
-                pathLine = Line(Point(self._particles[i][self.X], self._particles[i][self.Y]), Point(x, y))
-                pathLine.setFill('green')
-                pathLine.setWidth(1)
-                pathLine.draw(self._world._win)
+            if self.drawWayOfParticle:
+                self.drawWayOfParticle(i, x, y)
         
             self._particles[i][self.X] = x + random.normal(0.0, noiseReposition)
             self._particles[i][self.Y] = y + random.normal(0.0, noiseReposition)
-            self._particles[i][self.THETA] = theta  # + random.normal(0.0, noiseReposition * 2)
+            self._particles[i][self.THETA] = theta
             self._particles[i][self.WEIGHT] = 0
             self._particles[i][self.SUM] = 0
 
