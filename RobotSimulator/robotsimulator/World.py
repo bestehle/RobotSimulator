@@ -184,7 +184,7 @@ class World:
         self.undrawParticles()
         for n in range(len(poly) - 1):
             p = Point(poly[n][0], poly[n][1])
-            c = Circle(p, 0.06)
+            c = Circle(p, 0.03)
             c.draw(self._win)
             color = min(255, int(poly[n][3]) * 10)
             c.setFill(graphics.color_rgb(255 - color, color, 0))
@@ -195,9 +195,10 @@ class World:
     #        
     def drawBox(self, approximateBoxPosition):
         p = Point(approximateBoxPosition[0], approximateBoxPosition[1])
-        c = Circle(p, 0.06)
+        c = Text(p, "+")
+        c.setSize(35)
         c.draw(self._win)
-        c.setFill('red')
+        c.setFill('green')
 
     # --------
     # Draw postion (x, y, theta)
@@ -207,7 +208,13 @@ class World:
         if (self._approximatePosition):
             self._approximatePosition.undraw()
         p = Point(x, y)
-        self._approximatePosition = Circle(p, 0.1)
+        self._approximatePosition = Circle(p, 0.05)
+        self._approximatePosition.draw(self._win)
+        self._approximatePosition.setFill('yellow')  # --------
+    # Draw postion (x, y, theta)
+    #        
+    def redrawApproximatePosition(self):
+        self._approximatePosition.undraw()
         self._approximatePosition.draw(self._win)
         self._approximatePosition.setFill('yellow')
 
@@ -358,6 +365,7 @@ class World:
                                     % (self._clockTime, self._drivenDistance, x + dx, y + dy, self._robotTheta * 180 / pi))
 
         # show all
+        self.redrawApproximatePosition()
         self._udateWindow()
         return True
 
