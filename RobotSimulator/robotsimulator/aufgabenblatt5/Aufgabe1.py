@@ -30,6 +30,7 @@ localisation.drawParticles = True
 localisation.printFault = True
 localisation.printPosition = True
 localisation.addLandmark(1, 1)
+localisation.addLandmark(5, 7)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
 
@@ -37,9 +38,6 @@ myRobot.onMove(localisation.check)
 myRobot.useApproximatePosition(localisation.getPosition)
 
 planner = Planner(myWorld)
-
-path = planner.printablePath()
-draw.polyline(path)
 
 # settings for polyline follow
 v = 1
