@@ -48,7 +48,7 @@ class Localisation:
     # --------
     # clear all listeners for the position found event.
     # 
-    def clearOnLListener(self):
+    def clearOnLocalisedListener(self):
         self._localisedListener.clear()
         
     # --------
