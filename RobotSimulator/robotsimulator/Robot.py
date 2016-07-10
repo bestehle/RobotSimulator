@@ -7,12 +7,11 @@
 # V 2.0; 9.3.2016
 
 import random
+
 from numpy import math
 
 from robotsimulator import GeometryHelper
-from robotsimulator import Stats
 from robotsimulator.EventEmitter import EventEmitter
-from robotsimulator.graphics.graphics import Point, Circle
 
 
 class Robot:
@@ -23,10 +22,7 @@ class Robot:
         self._size = 0.4  # robot diameter
         self._T = 0.1  # time step
         self._world = None  # robot's world; is set by setWorld()
-        self.FRONT = 10
-        self.BOXES_DISTANCES = 0
-        self.BOXES_ANGLES = 1
-        self.BOX_DETECTION_TOLERANCE = 0.4
+        self.FRONT_SENSOR_INDEX = 10
 
         # Motion parameter:
         self._k_d = 0.02 * 0.02  # velocity noise parameter = 0.02m*0.02m / 1m
@@ -53,8 +49,6 @@ class Robot:
         
         # method to be called if we use approximate position
         self._approximatePosition = None
-        # number of detected boxes
-        self._detectedBoxes = []
         
     def activateMotionNoise(self):
         self._motionNoise = True
@@ -85,7 +79,6 @@ class Robot:
     #
     def getMaxSenseValue(self):
         return self._maxSenseValue
-
 
     # --------
     # Set the odometry pose
@@ -294,10 +287,7 @@ class Robot:
             self.goto(v, p, tol);     
                
     def followPolylineWithObstacle(self, v, poly, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, tol=1):
-        i = 0
         for p in poly:
-            i += 1
-            # print("Polyline : ", i)
             while True:
                 if not self.gotoWithObstacle(v, p, tol, sensorsToUse, avoidDistance):
                     self.avoidObstacle(v, sensorsToUse, sensorMaxDistance, avoidDistance)
@@ -353,8 +343,6 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
-            # print(left, right, front, scaledAngle)
-            
             if angle != 0:
                 self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle])
             else:
@@ -366,15 +354,15 @@ class Robot:
         left = 0
         front = 0
         for i in range(1, sensorsToUse + 1):
-            sensorRight = self.FRONT - 1 - sensorsToUse + i
+            sensorRight = self.FRONT_SENSOR_INDEX - 1 - sensorsToUse + i
             if sensors[sensorRight] != None and sensors[sensorRight] <= distance:
                 right += i * (5 - sensors[sensorRight])
-            sensorLeft = self.FRONT + 1 + sensorsToUse - i
+            sensorLeft = self.FRONT_SENSOR_INDEX + 1 + sensorsToUse - i
             if sensors[sensorLeft] != None and sensors[sensorLeft] <= distance:
                 left += i * (5 - sensors[sensorLeft])
         
-        if sensors[self.FRONT] != None and sensors[self.FRONT] <= distance:
-            front = 5 - sensors[self.FRONT]
+        if sensors[self.FRONT_SENSOR_INDEX] != None and sensors[self.FRONT_SENSOR_INDEX] <= distance:
+            front = 5 - sensors[self.FRONT_SENSOR_INDEX]
         return left, right, front
 
 
@@ -393,8 +381,8 @@ class Robot:
     # --------
     # rotate the robot with the given delta
     #     
-    def rotate(self, delta):
-        self.curveDrive(0, 0, delta, 0.1)
+    def rotate(self, delta, tolerance=0.1):
+        self.curveDrive(0, 0, delta, tolerance)
 
     # --------
     # sense and returns distance measurements for each sensor beam.
@@ -410,67 +398,6 @@ class Robot:
                 d += random.gauss(0.0, math.sqrt(sigma2))
             sensorDistNoisy.append(d)
         return sensorDistNoisy
-
-    # --------
-    # Sense boxes.
-    # Return [distances, angles] for all sensed boxes.
-    # Return None, if no boxes are visible.
-    #
-    def senseBoxes(self):
-        distAngles = self._world.senseBox()
-        if distAngles is None or distAngles[0] == []:
-            return None
-        else:
-            return distAngles
-
-    # --------
-    # Use senseBoxes() to check for near boxes.
-    #
-    def findBoxes(self):
-        # boxes in front
-        self._findBoxes(0, 0)
-        self.rotate(math.radians(130))
-        self._findBoxes(10, 0)
-        self.rotate(math.radians(130))
-        self._findBoxes(10, 30)
-    
-    def _isNewBox(self, position):
-        for box in self._detectedBoxes:
-            if (position[0] < box[0] + self.BOX_DETECTION_TOLERANCE
-            and position[0] > box[0] - self.BOX_DETECTION_TOLERANCE
-            and position[1] < box[1] + self.BOX_DETECTION_TOLERANCE
-            and position[1] > box[1] - self.BOX_DETECTION_TOLERANCE):
-                return False;
-        return True;
-        
-
-    def _findBoxes(self, ignoreRightDegree, ignoreLeftDegree, maxBoxDistance=3.5):
-        ignoreRight = math.radians(ignoreRightDegree)
-        ignoreLeft = math.radians(ignoreLeftDegree)
-        boxes = self.senseBoxes()
-        # no boxes found
-        if (None == boxes):
-            return False
-        # check all found boxes
-        for i in range(0, len(boxes[self.BOXES_DISTANCES])):
-            # distance/angle to the found box
-            angle = -boxes[self.BOXES_ANGLES][i]
-            distance = boxes[self.BOXES_DISTANCES][i]
-            
-            halfSensorAngle = self._world._boxSensorAngle / 2;
-            if angle > -halfSensorAngle + ignoreLeft and angle < halfSensorAngle - ignoreRight:
-                approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self.getTrueRobotPose())
-                trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
-                # box detected, but already seen?
-                print(distance)
-                if (self._isNewBox(trueBoxPosition) and distance < maxBoxDistance):
-                    self._detectedBoxes.append(approximateBoxPosition)
-                    print ('Detected Boxes : ' , len(self._detectedBoxes))
-                    self._world.drawBox(approximateBoxPosition)
-    
-                    Stats.boxPositions(round(approximateBoxPosition[0], 3), '\t', round(approximateBoxPosition[1], 3), '\t',
-                                       round(trueBoxPosition[0], 3), '\t', round(trueBoxPosition[1], 3))
-                    
 
     # --------
     # Sense Landmarks

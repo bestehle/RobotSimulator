@@ -2,6 +2,7 @@ from numpy import math
 
 from robotsimulator import GeometryHelper
 from robotsimulator import Robot
+from robotsimulator.BoxDetection import BoxDetection
 from robotsimulator.DrawHelper import DrawHelper
 from robotsimulator.LocalisationLikelihood import LocalisationLikelihood as Localisation
 from robotsimulator.PathPlanning import PathPlanning
@@ -34,6 +35,8 @@ localisation.addLandmark(5, 7)
 localisation.addLandmark(18, 13)
 localisation.addLandmark(1, 13)
 
+boxDetector = BoxDetection(myWorld, myRobot)
+
 myRobot.onMove(localisation.check)
 myRobot.useApproximatePosition(localisation.getPosition)
 
@@ -60,6 +63,6 @@ while (not planner.roomsVisited()):
     polyline = list(map(lambda point : Point(point[0], point[1]), path))
 
     myRobot.followPolylineWithObstacle(v, polyline, sensorsToUse, sensorMaxDistance, avoidDistance, tol)   
-    myRobot.findBoxes()
+    boxDetector.findBoxes()
 
 myWorld.close()
