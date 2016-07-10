@@ -5,6 +5,7 @@ from robotsimulator import GeometryHelper
 from robotsimulator import Stats
 from robotsimulator.graphics import graphics
 from robotsimulator.graphics.graphics import Line, Point
+from robotsimulator.EventEmitter import EventEmitter
 
 
 class Localisation:
@@ -36,7 +37,20 @@ class Localisation:
         self._numberOfParticles = numberOfParticles
         self._particles = self._generateParticles()
         self._landmarks = []
-
+        self._positionFoundListener = EventEmitter()
+    
+    # --------
+    # add a method to call after the position was found.
+    #
+    def onPositionFound(self, method):
+        self._positionFoundListener += method
+       
+    # --------
+    # clear all listeners for the position found event.
+    # 
+    def clearOnPositionFoundListener(self):
+        self._positionFoundListener.clear()
+        
     # --------
     # add a landmark which will be used for the measurement model
     #        
