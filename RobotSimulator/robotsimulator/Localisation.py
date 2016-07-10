@@ -8,7 +8,7 @@ from robotsimulator.graphics.graphics import Line, Point
 
 
 class Localisation:
-    def __init__(self, robot, world, numberOfParticles=100):
+    def __init__(self, robot, world, numberOfParticles=300):
         # constants to access items in list
         self.X = 0
         self.Y = 1
