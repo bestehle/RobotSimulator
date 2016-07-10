@@ -1,15 +1,17 @@
 from numpy import math
+
 from robotsimulator import GeometryHelper
 from robotsimulator import Robot
-#from robotsimulator.LocalisationLandmarks import LocalisationLandmarks as Localisation
+from robotsimulator.DrawHelper import DrawHelper
 from robotsimulator.LocalisationLikelihood import LocalisationLikelihood as Localisation
 from robotsimulator.PathPlanning import PathPlanning
+from robotsimulator.PlanByPermutations import PlanByPermutations as Planner
 from robotsimulator.World import World
 from robotsimulator.graphics.graphics import Point
 from robotsimulator.worlds import officeWorldWithDynObstacles as officeWorld
-from robotsimulator.PlanByPermutations import PlanByPermutations as Planner
-from robotsimulator.DrawHelper import DrawHelper
 
+
+# from robotsimulator.LocalisationLandmarks import LocalisationLandmarks as Localisation
 myWorld = World(20, 20)
 myRobot = Robot.Robot()
 myWorld = officeWorld.buildWorld()
@@ -24,7 +26,7 @@ pathPlanning._grid.addSafetyDistance(myRobot, 0.09)
 pathPlanning._grid.brushfire()
 
 localisation = Localisation(myRobot, myWorld)
-localisation.drawParticles = True
+localisation.drawParticles = False
 localisation.printFault = True
 localisation.printPositionn = True
 localisation.addLandmark(1, 1)
@@ -52,7 +54,7 @@ while (not planner.roomsVisited()):
     draw.polyline(path)
     polyline = list(map(lambda point : Point(point[0], point[1]), path))
 
-    myRobot.followPolylineWithObstacle(1, polyline, 9, 0.6, 0.5)   
+    myRobot.followPolylineWithObstacle(1, polyline, 9, 1, 0.6, 0.5)   
     myRobot.findBoxes()
 
 myWorld.close()

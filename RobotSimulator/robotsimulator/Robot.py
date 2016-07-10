@@ -293,14 +293,14 @@ class Robot:
         for p in poly:
             self.goto(v, p, tol);     
                
-    def followPolylineWithObstacle(self, v, poly, sensorsToUse=3, distance=5, tol=1):
+    def followPolylineWithObstacle(self, v, poly, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, tol=1):
         i = 0
         for p in poly:
             i += 1
             # print("Polyline : ", i)
             while True:
-                if not self.gotoWithObstacle(v, p, tol, sensorsToUse, distance):
-                    self.avoidObstacle(v, sensorsToUse, distance)
+                if not self.gotoWithObstacle(v, p, tol, sensorsToUse, avoidDistance):
+                    self.avoidObstacle(v, sensorsToUse, sensorMaxDistance, avoidDistance)
                 else:
                     break
             
@@ -309,14 +309,14 @@ class Robot:
         left, right, front = self.getWeightedSensorData(sensorsToUse, distance)
         return left != 0 or right != 0 or front != 0
     
-    def avoidObstacle(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
+    def avoidObstacle(self, v, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, minSpeed=0.05):
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
-        while True:
+        while self.obstacleInWay(sensorsToUse, avoidDistance):
             x = x + 1
-            left, right, front = self.getWeightedSensorData(sensorsToUse, distance)  
+            left, right, front = self.getWeightedSensorData(sensorsToUse, sensorMaxDistance)  
             
-            if self.isInDeadEnd(distance, scale, left, right, front):
+            if self.isInDeadEnd(avoidDistance, scale, left, right, front):
                 self.move([minSpeed, -self._maxOmega])
                 continue
             
@@ -326,12 +326,9 @@ class Robot:
                 angle = -(left + front)
             scaledAngle = angle * scale
             
-            if angle != 0:
-                if not self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle]):
-                    for _ in range(1, 5):
-                        self.move([-1, 0])
-            else:
-                return
+            if not self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle]):
+                for _ in range(1, 5):
+                    self.move([-1, 0])
 
     def braitenberg(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
         x = 0
