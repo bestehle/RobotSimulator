@@ -312,6 +312,7 @@ class Robot:
     def avoidObstacle(self, v, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, minSpeed=0.05):
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
+        self._world.ROBOT_WAY_COLOR = 'yellow'
         while self.obstacleInWay(sensorsToUse, avoidDistance):
             x = x + 1
             left, right, front = self.getWeightedSensorData(sensorsToUse, sensorMaxDistance)  
@@ -329,6 +330,7 @@ class Robot:
             if not self.move([max(minSpeed, v * (1 - abs(scaledAngle) / math.pi)), scaledAngle]):
                 for _ in range(1, 5):
                     self.move([-1, 0])
+        self._world.ROBOT_WAY_COLOR = 'red'
 
     def braitenberg(self, v, sensorsToUse=3, distance=5, minSpeed=0.05):
         x = 0

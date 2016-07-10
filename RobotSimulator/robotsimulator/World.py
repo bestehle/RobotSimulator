@@ -21,8 +21,8 @@
 
 
 from math import *
-import time
 from random import randint
+import time
 
 import numpy as np
 from robotsimulator import GeometryHelper
@@ -115,6 +115,8 @@ class World:
         
         # dict to store the values of the global localisation grid
         self._globalGrid = {}
+        
+        self.ROBOT_WAY_COLOR = 'red'
 
     # --------
     # Get the values from a global localization grid for the position (x,y).
@@ -130,7 +132,7 @@ class World:
     # Draw a polyline.
     #
     def drawGlobalLocalisationGrid(self):
-        print(randint(0,9))
+        print(randint(0, 9))
         for y in range(self._height + 1):
             for x in range(self._width + 1):
                 points = [Point(x, y), Point(x + 1, y), Point(x + 1, y + 1), Point(x, y + 1)]
@@ -326,7 +328,7 @@ class World:
         self._drivenDistance += d
         if self._showPathHistory == True:
             pathLine = Line(c, nc)
-            pathLine.setFill('red')
+            pathLine.setFill(self.ROBOT_WAY_COLOR)
             pathLine.setWidth(3)
             pathLine.draw(self._win)
         # print x+dx, y+dy, self.robotTheta
