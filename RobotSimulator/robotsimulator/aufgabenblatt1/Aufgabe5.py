@@ -13,6 +13,6 @@ polyline = [Point(2, 10), Point(20, 10), Point(20, 5), Point(25, 5)]
 for x in polyline:
     myWorld.addBox(x.getX(), x.getY())
 
-myRobot.followPolyline(v, polyline)
+myRobot.followPolylineWithObstacleAvoidance(v, polyline)
 
 myWorld.close()

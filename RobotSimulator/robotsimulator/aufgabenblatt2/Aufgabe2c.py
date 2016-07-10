@@ -10,6 +10,6 @@ myWorld.drawPolyline(polyline)
 myRobot = Robot.Robot()
 myWorld.setRobot(myRobot, 1, 6, 0)
 
-myRobot.followPolylineWithObstacle(1, polyline, 6, 1)
+myRobot.followPolylineWithObstacleAvoidance(1, polyline, 6, 1)
 
 myWorld.close()

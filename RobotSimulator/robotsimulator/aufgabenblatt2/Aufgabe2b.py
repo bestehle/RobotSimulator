@@ -27,6 +27,6 @@ myWorld.setRobot(myRobot, 15, 12, math.pi)
 
 v = 0.5
 v2 = 1
-myRobot.followPolylineWithObstacle(v2, polyline, 6, 2)
+myRobot.followPolylineWithObstacleAvoidance(v2, polyline, 6, 2)
 
 myWorld.close()

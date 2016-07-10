@@ -214,9 +214,10 @@ class World:
     # Draw postion (x, y, theta)
     #        
     def redrawApproximatePosition(self):
-        self._approximatePosition.undraw()
-        self._approximatePosition.draw(self._win)
-        self._approximatePosition.setFill('yellow')
+        if (self._approximatePosition):
+            self._approximatePosition.undraw()
+            self._approximatePosition.draw(self._win)
+            self._approximatePosition.setFill('yellow')
 
     # --------
     # Undraw the polyline.

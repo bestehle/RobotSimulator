@@ -62,7 +62,7 @@ while (not planner.roomsVisited()):
     draw.polyline(path)
     polyline = list(map(lambda point : Point(point[0], point[1]), path))
 
-    myRobot.followPolylineWithObstacle(v, polyline, sensorsToUse, sensorMaxDistance, avoidDistance, tol)   
+    myRobot.followPolylineWithObstacleAvoidance(v, polyline, sensorsToUse, sensorMaxDistance, avoidDistance, tol)   
     boxDetector.findBoxes()
 
 myWorld.close()

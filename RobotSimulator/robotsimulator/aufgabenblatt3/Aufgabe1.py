@@ -33,6 +33,6 @@ for point in path:
     polyline.append(Point(point[0], point[1]))
 
 
-myRobot.followPolylineWithObstacle(v=1, poly=polyline, sensorsToUse=9, sensorMaxDistance=10, avoidDistance=0.5, tol=1)
+myRobot.followPolylineWithObstacleAvoidance(v=1, poly=polyline, sensorsToUse=9, sensorMaxDistance=10, avoidDistance=0.5, tol=1)
 
 myWorld.close()

@@ -169,6 +169,13 @@ class Robot:
         self._moveListener.emit()
         
         return self._world.moveRobot(d_noisy, dTheta_noisy, self._T)
+    
+    def moveRandom(self, v, x, scaledAngle):
+        if x % 30 == 0:
+            for _ in range(1, 4):
+                self.move([v, (random.random() - 0.5) * 2 * math.pi])
+        else:
+            self.move([v, scaledAngle])
 
     # dirves length l with speed v 
     def straightDrive(self, v, l):
@@ -177,19 +184,6 @@ class Robot:
         t = int((l / v) / self._T)
         for _ in range(0, t):
             self.move([v, 0])
-
-    # drives length l with speed v 
-    def straightDriveTruePose(self, v, l):
-        if v == 0:
-            return
-        truePoseBefore = self.getTrueRobotPose()
-        trueL = 0
-        while trueL < (l - v * self._T):
-            self.move([v, 0])
-            truePoseAfter = self.getTrueRobotPose()
-            trueL = math.sqrt((truePoseAfter[0] - truePoseBefore[0]) ** 2 + (truePoseAfter[1] - truePoseBefore[1]) ** 2)
-        v = (l - trueL) / self._T
-        self.move([v, 0])
             
     def curveDrive(self, v, r, delta_theta, tolerance=0.01):
         if v == 0 and r != 0:
@@ -208,52 +202,26 @@ class Robot:
         for _ in range(0, tau):
             self.move([v, omega * sign])
             
-            
-    def curveDriveTruePose(self, v, r, delta_theta):
-        if v == 0 and r != 0:
-            return
-        if r == 0:
-            omega = self._maxOmega
-        else:
-            omega = (v / r)
-        sign = -1 if delta_theta < 0 else 1
-        endTheta = GeometryHelper.addDegree(self.getTrueRobotPose()[2], delta_theta)
-        while abs(GeometryHelper.diffDegree(self.getTrueRobotPose()[2], endTheta)) >= (omega * self._T) :
-            self.move([v, omega * sign])
-        self.move([v, self.diffDegree(self.getTrueRobotPose()[2], endTheta) / self._T * sign])
-
+    def rotate(self, delta, tolerance=0.1):
+        self.curveDrive(0, 0, delta, tolerance)
     
-    def distance(self, p1, p2):
+    def distanceFromRobotToLine(self, p1, p2):
         return GeometryHelper.perpendicularDistance((p1.x, p1.y), (p2.x, p2.y), self.getTrueRobotPose())
 
     def followLineP(self, v, kp, p1, p2, kd=1):
-        e = self.distance(p1, p2)
+        e = self.distanceFromRobotToLine(p1, p2)
         while e != 0:
-            e = self.distance(p1, p2)
+            e = self.distanceFromRobotToLine(p1, p2)
             if not self.move([v, -kp * e]):
                 return
 
     def followLinePD(self, v, kp, p1, p2, kd=1):
-        e = self.distance(p1, p2)
+        e = self.distanceFromRobotToLine(p1, p2)
         while e != 0:
-            de = (self.distance(p1, p2) - e) / self._T
-            e = self.distance(p1, p2)
+            de = (self.distanceFromRobotToLine(p1, p2) - e) / self._T
+            e = self.distanceFromRobotToLine(p1, p2)
             if not self.move([v, (-kp * e) - (kd * de)]) :
                 return
-
-    def gotoTurnFirst(self, v, p, tol):
-        # get the actual position of robot
-        [x, y, theta] = self.getTrueRobotPose();
-        # calculate the distance between robot and target point
-        distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
-        delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
-        # point not reached?
-        if(distance > tol):
-            # drive missing distance
-            self.curveDriveTruePose(0.5, 0, delta_theta)
-            self.straightDriveTruePose(v, distance);
-            # call goto again.
-            self.goto(v, p, tol)
 
     def goto(self, v, p, tol):
         while True:
@@ -265,37 +233,29 @@ class Robot:
             self.move([v, delta_theta])
             
             
-    def gotoWithObstacle(self, v, p, tol, sensorsToUse, distanceTol, minSpeed=0.2):
+    def gotoWithObstacleAvoidance(self, v, p, tol, sensorsToUse=9, distanceTol=1, minSpeed=0.2):
         while True:
             [x, y, theta] = self.getTrueRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
             delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):
                 return True
-            if self.obstacleInWay(sensorsToUse, distanceTol):
+            if self.isObstacleInWay(sensorsToUse, distanceTol):
                 return False
             if not self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi)), delta_theta]):
                 for _ in range(1, 5):
                     self.move([-1, 0])
-        
-    def followPolylineTurnFirst(self, v, poly, tol=1):
-        for p in poly:
-            self.gotoTurnFirst(v, p, tol);
-        
-    def followPolyline(self, v, poly, tol=1):
-        for p in poly:
-            self.goto(v, p, tol);     
                
-    def followPolylineWithObstacle(self, v, poly, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, tol=1):
+    def followPolylineWithObstacleAvoidance(self, v, poly, sensorsToUse=3,
+                                             sensorMaxDistance=5, avoidDistance=1, tol=1):
         for p in poly:
             while True:
-                if not self.gotoWithObstacle(v, p, tol, sensorsToUse, avoidDistance):
+                if not self.gotoWithObstacleAvoidance(v, p, tol, sensorsToUse, avoidDistance):
                     self.avoidObstacle(v, sensorsToUse, sensorMaxDistance, avoidDistance)
                 else:
                     break
             
-            
-    def obstacleInWay(self, sensorsToUse, distance):
+    def isObstacleInWay(self, sensorsToUse, distance):
         left, right, front = self.getWeightedSensorData(sensorsToUse, distance)
         return left != 0 or right != 0 or front != 0
     
@@ -303,7 +263,7 @@ class Robot:
         x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         self._world.ROBOT_WAY_COLOR = 'yellow'
-        while self.obstacleInWay(sensorsToUse, avoidDistance):
+        while self.isObstacleInWay(sensorsToUse, avoidDistance):
             x = x + 1
             left, right, front = self.getWeightedSensorData(sensorsToUse, sensorMaxDistance)  
             
@@ -368,21 +328,6 @@ class Robot:
 
     def isInDeadEnd(self, distance, scale, left, right, front):
         return (left + right + front) * scale / 2 > 2 and front > distance
-
-
-    def moveRandom(self, v, x, scaledAngle):
-        if x % 30 == 0:
-            for _ in range(1, 4):
-                self.move([v, (random.random() - 0.5) * 2 * math.pi])
-        else:
-            self.move([v, scaledAngle])
-
-
-    # --------
-    # rotate the robot with the given delta
-    #     
-    def rotate(self, delta, tolerance=0.1):
-        self.curveDrive(0, 0, delta, tolerance)
 
     # --------
     # sense and returns distance measurements for each sensor beam.
