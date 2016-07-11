@@ -133,16 +133,21 @@ class OccupancyGrid:
         return self.grid[xi][yi]
     
     def getValueWeight(self, x, y):
+        # get value of brushfire. 
         value = self.getValue(x, y)
+        # if x or y is outside of the map we get None
         if value is None:
+            # check how far the x,y value is outside of map
             x = abs(x) % self.xSize
             y = abs(y) % self.ySize
+            # calculate value
             if x < 0 or x > self.xSize:
                 if 0 < y < self.ySize:
                     value = -x
                 else:
                     value = -math.sqrt(x ** 2 + y ** 2)
             value = -y
+        # invert the value, because lower weight is better.
         if value < 1:
             return 1.0 / (abs(value) + 2)
         return value
