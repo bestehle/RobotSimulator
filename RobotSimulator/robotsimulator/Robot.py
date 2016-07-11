@@ -350,13 +350,17 @@ class Robot:
     # of the robot
     #
     def senseLandmarks(self, landmarks):
-        ret = []
+        angles = []
+        distances = []
         (posX, posY, _) = self._world.getTrueRobotPose()
         for (landX, landY) in landmarks:
             distance = math.sqrt((landX - posX) ** 2 + (landY - posY) ** 2)
             distance += random.gauss(0, self._sensorNoise)
-            ret.append(distance)
-        return ret
+            angle = math.atan2(posY - landY, posX - landX)
+            #angle += random.gauss(0, self._sensorNoise)
+            angles.append(angle)
+            distances.append(distance)
+        return (distances, angles)
 
     # --------
     # set world

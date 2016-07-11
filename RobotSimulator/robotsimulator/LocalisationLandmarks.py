@@ -1,5 +1,5 @@
-
-from numpy import math
+import random
+import math
 
 from robotsimulator.Localisation import Localisation
 
@@ -12,7 +12,7 @@ class LocalisationLandmarks(Localisation):
     #        
     def _measurementModel(self):
         # get the distance for each landMark to the current approximate robot position
-        robotDistance = self._robot.senseLandmarks(self._landmarks)
+        (robotDistance, robotAngle) = self._robot.senseLandmarks(self._landmarks)
 
         weightSum = 0
         # check each particle
@@ -25,10 +25,13 @@ class LocalisationLandmarks(Localisation):
                 (landmarkX, landmarkY) = self._landmarks[mark]
                 # distance of the particle to the landmark
                 particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX) ** 2 + (self._particles[i][self.Y] - landmarkY) ** 2)
+                # get the particle angle
+                particleAngle = math.atan2(self._particles[i][self.Y] - landmarkY, self._particles[i][self.X] - landmarkX)
                 # set (distance of robot to landmark) in relation to (distance of particle to landmark)
                 distance = abs(robotDistance[mark] - particleDistance)
+                angle = abs(robotAngle[mark] - particleAngle)
                 # multiply the distance to the weight
-                self._particles[i][self.WEIGHT] *= distance
+                self._particles[i][self.WEIGHT] *= distance * angle
                 
             # invert weight to get high value for a good particle
             self._particles[i][self.WEIGHT] = 1 / self._particles[i][self.WEIGHT]
