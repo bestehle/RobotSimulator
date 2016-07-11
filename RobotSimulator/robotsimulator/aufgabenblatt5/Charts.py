@@ -133,7 +133,7 @@ def localisationFault():
     plt.plot(time, thetaFault, 'y', label='theta fault')
     plt.legend(numpoints=3)
     # xMin - xMax and yMin - yMax
-    plt.axis([0, num, 0, 0.6])
+    plt.axis([0, num, 0, 1.2])
     plt.show()
     
 def robotPosition():
