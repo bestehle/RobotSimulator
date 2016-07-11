@@ -3,8 +3,6 @@ from numpy import math, random
 
 from robotsimulator import GeometryHelper
 from robotsimulator import Stats
-from robotsimulator.graphics import graphics
-from robotsimulator.graphics.graphics import Line, Point
 from robotsimulator.EventEmitter import EventEmitter
 
 

@@ -45,7 +45,7 @@ class PathPlanning:
             # visit each neighbor of the current vertex
             for neighbor in self._grid.getNeighbors(current):
                 # with weights from brushfire
-                weight = (1 / sqrt(max(1, abs(self._grid.getValueCell(neighbor[0], neighbor[1]))))) / weightOfBrushfire
+                weight = (1 / max(1, abs(self._grid.getValueCell(neighbor[0], neighbor[1])))) / weightOfBrushfire
                 
                 # calculate the cost to reach the neighbor from the current vertex
                 updatedCost = cost[current] + self._grid.cost(current, neighbor) + weight
