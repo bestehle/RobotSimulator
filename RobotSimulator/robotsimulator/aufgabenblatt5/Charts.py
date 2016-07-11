@@ -56,6 +56,7 @@ def globalLocalisationWeightSum():
 
 def boxPositions():
     positons = []
+    f2 = open(Stats.BOX_POSITIONS_FILE)
     for line in f2:
         line = line.split('\t')
         lst = [float(x) for x in line]
@@ -70,12 +71,13 @@ def boxPositions():
     num = len(approX) + 1
     time = list(range(1, num))
     
+    plt.suptitle('Box positions', fontsize=20)
     # plot
     plt.subplot(211)
     plt.ylabel('x', fontsize=18)
-    plt.plot(time, approX, 'r', label='Line 1')
-    plt.plot(time, trueX, 'g')
-    print (approY, trueY)
+    plt.plot(time, approX, 'r', label='Approximate Position')
+    plt.plot(time, trueX, 'g', label='True Position')
+    plt.legend(numpoints=1)
     plt.subplot(212)
     plt.ylabel('y', fontsize=18)
     plt.plot(time, approY, 'r')
@@ -85,6 +87,7 @@ def boxPositions():
     
 
 def boxPositionsInGrid():
+    f2 = open(Stats.BOX_POSITIONS_FILE)
     positons = []
     for line in f2:
         line = line.split('\t')
@@ -96,13 +99,14 @@ def boxPositionsInGrid():
     trueX = list(map(lambda l : l[2], positons))
     trueY = list(map(lambda l : l[3], positons))
     
+    plt.suptitle('Box positions', fontsize=20)
     # plot
     plt.ylabel('y', fontsize=18)
     plt.xlabel('x', fontsize=18)
-    plt.plot(approX, approY, 'ro', label='Line 1')
-    plt.plot(trueX, trueY, 'g+')
+    plt.plot(approX, approY, 'g+', label='Approximate Position')
+    plt.plot(trueX, trueY, 'ro', label='True Position')
     plt.axis([0, 19, 0, 14])
-    print (approY, trueY)
+    plt.legend(numpoints=1)
     plt.show()
 
 def localisationFault():
@@ -122,10 +126,12 @@ def localisationFault():
     num = len(xFault) + 1
     time = list(range(1, num))
     
+    plt.suptitle('Robot localisation fault', fontsize=20)
     # plot
-    plt.plot(time, xFault, 'r')
-    plt.plot(time, yFault, 'b')
-    plt.plot(time, thetaFault, 'y')
+    plt.plot(time, xFault, 'r', label='x fault')
+    plt.plot(time, yFault, 'b', label='y fault')
+    plt.plot(time, thetaFault, 'y', label='theta fault')
+    plt.legend(numpoints=3)
     # xMin - xMax and yMin - yMax
     plt.axis([0, num, 0, 0.6])
     plt.show()
@@ -153,24 +159,26 @@ def robotPosition():
     # plot
     plt.subplot(311)
     plt.ylabel('x', fontsize=18)
-    plt.plot(time, approX, 'r', label='Line 1')
-    plt.plot(time, trueX, 'g')
-    
+    plt.plot(time, approX, 'r', label='Approximate Position')
+    plt.plot(time, trueX, 'g', label='True Position')
+    plt.legend(numpoints=3)
     plt.subplot(312)
     plt.ylabel('y', fontsize=18)
-    plt.plot(time, approY, 'r')
-    plt.plot(time, trueY, 'g')
+    plt.plot(time, approY, 'r', label='Approximate Position')
+    plt.plot(time, trueY, 'g', label='True Position')
     
     plt.subplot(313)
     plt.ylabel('theta', fontsize=18)
-    plt.plot(time, approTheta, 'r')
-    plt.plot(time, trueTheta, 'g')
+    plt.plot(time, approTheta, 'r', label='Approximate Position')
+    plt.plot(time, trueTheta, 'g', label='True Position')
+    
+
     plt.show()
 
-# boxPositions()
-globalLocalisationWeightSum()
-# boxPositionsInGrid()
-# localisationFault()
+boxPositionsInGrid()
+boxPositions()
+#globalLocalisationWeightSum()
+localisationFault()
 robotPosition()
 
 
