@@ -242,7 +242,8 @@ class Robot:
                 return True
             if self.isObstacleInWay(sensorsToUse, distanceTol):
                 return False
-            if not self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi)), delta_theta]):
+            if not self.move([ v * max(minSpeed, (1 - abs(delta_theta * 5) / math.pi) 
+                                 * min(1, distance)), delta_theta]):
                 for _ in range(1, 5):
                     self.move([-1, 0])
                
