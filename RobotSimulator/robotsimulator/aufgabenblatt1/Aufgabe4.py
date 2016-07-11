@@ -19,7 +19,7 @@ myWorld.close()
 
 def gotoTurnFirst(robot, v, p, tol):
     # get the actual position of robot
-    [x, y, theta] = robot.getTrueRobotPose();
+    [x, y, theta] = robot.getRobotPose();
     # calculate the distance between robot and target point
     distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
     delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)

@@ -30,7 +30,7 @@ class Localisation:
     
         self._robot = robot
         self._world = world
-        self._position = self._robot.getTrueRobotPose()
+        self._position = self._robot.getRobotPose()
         self._grid = self._world.getOccupancyGrid()
         self._numberOfParticles = numberOfParticles
         self._particles = self._generateParticles()

@@ -97,7 +97,7 @@ class Robot:
     # --------
     # get the true robot pose (x,y,theta).
     #
-    def getTrueRobotPose(self):
+    def getRobotPose(self):
         if (self._approximatePosition):
             return self._approximatePosition()
         else:
@@ -206,7 +206,7 @@ class Robot:
         self.curveDrive(0, 0, delta, tolerance)
     
     def distanceFromRobotToLine(self, p1, p2):
-        return GeometryHelper.perpendicularDistance((p1.x, p1.y), (p2.x, p2.y), self.getTrueRobotPose())
+        return GeometryHelper.perpendicularDistance((p1.x, p1.y), (p2.x, p2.y), self.getRobotPose())
 
     def followLineP(self, v, kp, p1, p2, kd=1):
         e = self.distanceFromRobotToLine(p1, p2)
@@ -225,7 +225,7 @@ class Robot:
 
     def goto(self, v, p, tol):
         while True:
-            [x, y, theta] = self.getTrueRobotPose();
+            [x, y, theta] = self.getRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
             delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):
@@ -235,7 +235,7 @@ class Robot:
             
     def gotoWithObstacleAvoidance(self, v, p, tol, sensorsToUse=9, distanceTol=1, minSpeed=0.2):
         while True:
-            [x, y, theta] = self.getTrueRobotPose();
+            [x, y, theta] = self.getRobotPose();
             distance = math.sqrt(((x - p.getX()) ** 2) + ((y - p.getY()) ** 2))
             delta_theta = GeometryHelper.diffDegree(math.atan2(p.getY() - y, p.getX() - x), theta)
             if (distance < tol):

@@ -64,7 +64,7 @@ class BoxDetection(object):
             distance = boxes[self.BOXES_DISTANCES][i]
             
             if self.isInNewAngle(ignoreRight, ignoreLeft, angle):
-                approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._robot.getTrueRobotPose())
+                approximateBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._robot.getRobotPose())
                 trueBoxPosition = GeometryHelper.calculatePosition(angle, distance, self._world.getTrueRobotPose())
                 
                 if  self._isNewBox(trueBoxPosition, maxBoxDistance, distance):

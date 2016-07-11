@@ -11,11 +11,11 @@ myWorld.setRobot(myRobot, 8, 5, 0)
 def straightDriveTruePose(robot, v, l):
     if v == 0:
         return
-    truePoseBefore = robot.getTrueRobotPose()
+    truePoseBefore = robot.getRobotPose()
     trueL = 0
     while trueL < (l - v * robot._T):
         robot.move([v, 0])
-        truePoseAfter = robot.getTrueRobotPose()
+        truePoseAfter = robot.getRobotPose()
         trueL = math.sqrt((truePoseAfter[0] - truePoseBefore[0]) ** 2 + (truePoseAfter[1] - truePoseBefore[1]) ** 2)
     v = (l - trueL) / robot._T
     robot.move([v, 0])
@@ -28,10 +28,10 @@ def curveDriveTruePose(robot, v, r, delta_theta):
     else:
         omega = (v / r)
     sign = -1 if delta_theta < 0 else 1
-    endTheta = GeometryHelper.addDegree(robot.getTrueRobotPose()[2], delta_theta)
-    while abs(GeometryHelper.diffDegree(robot.getTrueRobotPose()[2], endTheta)) >= (omega * robot._T) :
+    endTheta = GeometryHelper.addDegree(robot.getRobotPose()[2], delta_theta)
+    while abs(GeometryHelper.diffDegree(robot.getRobotPose()[2], endTheta)) >= (omega * robot._T) :
         robot.move([v, omega * sign])
-    robot.move([v, GeometryHelper.diffDegree(robot.getTrueRobotPose()[2], endTheta) / robot._T * sign])
+    robot.move([v, GeometryHelper.diffDegree(robot.getRobotPose()[2], endTheta) / robot._T * sign])
 
 v = 1
 v2 = 1
