@@ -182,11 +182,11 @@ class World:
     #
     def drawParticles(self, poly, color='black'):
         self.undrawParticles()
-        for n in range(len(poly) - 1):
-            p = Point(poly[n][0], poly[n][1])
+        for n in poly[0::2]:
+            p = Point(n[0], n[1])
             c = Circle(p, 0.03)
             c.draw(self._win)
-            color = min(255, int(poly[n][3]) * 10)
+            color = min(255, int(n[3]) * 10)
             c.setFill(graphics.color_rgb(255 - color, color, 0))
             self._drawnParticles.append(c)
 
@@ -444,11 +444,16 @@ class World:
         # Draw new sensor beam lines:
         self._sensorLines = []
         p = self._robotCircle.getCenter()
+        i = 0
         for q in self._sensorPoints:
             l = Line(p, q)
-            l.setFill('red')
+            if i >= 1 and i < 18:
+                l.setFill('red')
+            else:
+                l.setFill('orange')
             self._sensorLines.append(l)
             l.draw(self._win)
+            i += 1
         self._robotCircle.undraw()
         self._robotLine.undraw()
         self._robotCircle.draw(self._win)

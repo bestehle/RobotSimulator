@@ -5,6 +5,7 @@ from robotsimulator import Robot
 from robotsimulator.BoxDetection import BoxDetection
 from robotsimulator.DrawHelper import DrawHelper
 from robotsimulator.LocalisationLikelihood import LocalisationLikelihood as Localisation
+# from robotsimulator.LocalisationLandmarks import LocalisationLandmarks as Localisation
 from robotsimulator.PathPlanning import PathPlanning
 from robotsimulator.PlanByPermutations import PlanByPermutations as Planner
 from robotsimulator.World import World
@@ -25,6 +26,7 @@ pathPlanning = PathPlanning(myRobot, myWorld)
 pathPlanning._grid.numberOfNeighbors = 8
 pathPlanning._grid.addSafetyDistance(myRobot, 0.09)
 pathPlanning._grid.brushfire()
+# pathPlanning._grid.drawGrid()
 
 localisation = Localisation(myRobot, myWorld)
 localisation.drawParticles = True

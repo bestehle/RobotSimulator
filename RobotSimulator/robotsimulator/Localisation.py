@@ -1,8 +1,10 @@
 from statistics import median
+
 from numpy import math, random
 
 from robotsimulator import GeometryHelper
 from robotsimulator import Stats
+from robotsimulator.DrawHelper import DrawHelper
 from robotsimulator.EventEmitter import EventEmitter
 
 
@@ -27,6 +29,7 @@ class Localisation:
         self.drawWayOfLocalisation = False
         self.printFault = False
         self.printPosition = False
+        self.draw = DrawHelper(world)
     
         self._robot = robot
         self._world = world
@@ -76,7 +79,7 @@ class Localisation:
         y = median(map(lambda l : l[self.Y], self._particles))
         theta = median(map(lambda l : l[self.THETA], self._particles))
         if self.drawWayOfLocalisation:
-            self.drawHelper.drawWayOfLocalisation(self, x, y, theta)
+            self.draw.drawWayOfLocalisation(self, x, y, theta)
         self._position = (x, y, theta)
         self._world.drawApproximatePosition(self._position)
         if self.printFault:

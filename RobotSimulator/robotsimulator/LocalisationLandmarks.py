@@ -1,7 +1,8 @@
-import random
 import math
+import random
 
 from robotsimulator.Localisation import Localisation
+
 
 class LocalisationLandmarks(Localisation):
     def __init__(self, *args, **keywargs):
@@ -27,7 +28,6 @@ class LocalisationLandmarks(Localisation):
                 particleDistance = math.sqrt((self._particles[i][self.X] - landmarkX) ** 2 + (self._particles[i][self.Y] - landmarkY) ** 2)
                 # get the particle angle
                 particleAngle = math.atan2(self._particles[i][self.Y] - landmarkY, self._particles[i][self.X] - landmarkX)
-                print (particleAngle)
                 # set (distance of robot to landmark) in relation to (distance of particle to landmark)
                 distance = abs(robotDistance[mark] - particleDistance)
                 angle = abs((robotAngle[mark] - particleAngle - math.pi) % 2 * math.pi - math.pi)

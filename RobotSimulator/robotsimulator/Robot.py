@@ -261,11 +261,9 @@ class Robot:
         return left != 0 or right != 0 or front != 0
     
     def avoidObstacle(self, v, sensorsToUse=3, sensorMaxDistance=5, avoidDistance=1, minSpeed=0.05):
-        x = 0
         scale = math.pi / (sensorsToUse * (sensorsToUse + 1) / 2 * 5 + 5)
         self._world.ROBOT_WAY_COLOR = 'yellow'
         while self.isObstacleInWay(sensorsToUse, avoidDistance):
-            x = x + 1
             left, right, front = self.getWeightedSensorData(sensorsToUse, sensorMaxDistance)  
             
             if self.isInDeadEnd(avoidDistance, scale, left, right, front):
@@ -358,7 +356,7 @@ class Robot:
             distance = math.sqrt((landX - posX) ** 2 + (landY - posY) ** 2)
             distance += random.gauss(0, self._sensorNoise)
             angle = math.atan2(posY - landY, posX - landX)
-            #angle += random.gauss(0, self._sensorNoise)
+            # angle += random.gauss(0, self._sensorNoise)
             angles.append(angle)
             distances.append(distance)
         return (distances, angles)
